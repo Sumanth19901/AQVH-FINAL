@@ -17,6 +17,7 @@ import { AlertTriangle, CheckCircle, BrainCircuit } from "lucide-react"
 import type { Job, Anomaly } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeJobAnomalies } from "@/ai/flows/analyze-job-anomalies"
+import { useDashboard } from "@/contexts/dashboard-context"
 
 interface AnomalyDialogProps {
   jobs: Job[];
@@ -28,8 +29,9 @@ const ANALYSIS_JOB_LIMIT = 100;
 
 export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<{anomalies: Anomaly[], summary: string} | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<{ anomalies: Anomaly[], summary: string } | null>(null)
   const { toast } = useToast()
+  const { isDemo } = useDashboard()
 
   const handleAnalysis = async () => {
     setIsLoading(true)
@@ -38,7 +40,8 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
       // Limit the number of jobs sent to the AI to avoid exceeding token limits
       const recentJobs = jobs.slice(0, ANALYSIS_JOB_LIMIT);
       const jobData = JSON.stringify(recentJobs.map(({ id, status, backend, submitted, elapsed_time, status_history }) => ({ id, status, backend, submitted, elapsed_time, status_history })));
-      const result = await analyzeJobAnomalies({ jobData })
+
+      const result = await analyzeJobAnomalies({ jobData, isDemo })
       setAnalysisResult(result)
     } catch (error) {
       console.error("Analysis failed:", error)
@@ -51,7 +54,7 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
       setIsLoading(false)
     }
   }
-  
+
   const handleClose = (open: boolean) => {
     if (!open) {
       setAnalysisResult(null)
@@ -86,7 +89,7 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
               <Skeleton className="h-24 w-full" />
             </div>
           )}
-          
+
           {!isLoading && analysisResult && (
             <div className="space-y-4">
               <Alert variant="default" className="bg-primary/10 border-primary/20">
@@ -113,11 +116,11 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
               )}
             </div>
           )}
-          
+
           {!isLoading && !analysisResult && (
-             <div className="text-center text-muted-foreground py-8">
-                <BrainCircuit className="mx-auto h-12 w-12" />
-                <p className="mt-4">Ready to analyze the {Math.min(jobs.length, ANALYSIS_JOB_LIMIT)} most recent jobs.</p>
+            <div className="text-center text-muted-foreground py-8">
+              <BrainCircuit className="mx-auto h-12 w-12" />
+              <p className="mt-4">Ready to analyze the {Math.min(jobs.length, ANALYSIS_JOB_LIMIT)} most recent jobs.</p>
             </div>
           )}
         </div>

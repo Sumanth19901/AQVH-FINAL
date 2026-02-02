@@ -43,7 +43,7 @@ export function StatusChart({ data, view }: StatusChartProps) {
   const currentView = viewConfig[view];
   const activeChartConfig = useMemo(() => {
     return Object.fromEntries(
-        Object.entries(chartConfig).filter(([key]) => currentView.keys.includes(key as any))
+      Object.entries(chartConfig).filter(([key]) => (currentView.keys as readonly string[]).includes(key))
     )
   }, [currentView]);
 
@@ -61,14 +61,14 @@ export function StatusChart({ data, view }: StatusChartProps) {
           <ResponsiveContainer>
             <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis 
-                dataKey="time" 
-                tickLine={false} 
-                axisLine={false} 
+              <XAxis
+                dataKey="time"
+                tickLine={false}
+                axisLine={false}
                 tickMargin={8}
                 label={{ value: 'Time', position: 'insideBottom', dy: 20, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
               />
-              <YAxis 
+              <YAxis
                 label={{ value: 'Number of Jobs', angle: -90, position: 'insideLeft', dx: -10, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
@@ -77,7 +77,7 @@ export function StatusChart({ data, view }: StatusChartProps) {
               <ChartLegend content={<ChartLegendContent />} />
               <defs>
                 {Object.keys(activeChartConfig).map((key) => (
-                   <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={`var(--color-${key})`} stopOpacity={0.8} />
                     <stop offset="95%" stopColor={`var(--color-${key})`} stopOpacity={0.1} />
                   </linearGradient>

@@ -31,6 +31,7 @@ const DashboardAssistantOutputSchema = z.object({
       'SHOW_ALL_JOBS',
       'SHOW_SESSIONS',
       'GENERATE_JOB_CODE',
+      'SUBMIT_JOB',
       'NONE',
     ])
     .default('NONE'),
@@ -91,15 +92,15 @@ const dashboardAssistantFlow = ai.defineFlow(
     if (output?.action === 'GENERATE_JOB_CODE' && output.code) {
       try {
         const jobResult = await new Promise<string>((resolve, reject) => {
-          const process = spawn('python', ['-c', output.code]);
+          const process = spawn('python', ['-c', output.code as string]) as any;
 
           let result = '';
           let error = '';
 
-          process.stdout.on('data', (data) => (result += data.toString()));
-          process.stderr.on('data', (data) => (error += data.toString()));
+          process.stdout.on('data', (data: any) => (result += data.toString()));
+          process.stderr.on('data', (data: any) => (error += data.toString()));
 
-          process.on('close', (code) => {
+          process.on('close', (code: number) => {
             if (code === 0) resolve(result.trim());
             else reject(new Error(error || 'Quantum job execution failed.'));
           });
