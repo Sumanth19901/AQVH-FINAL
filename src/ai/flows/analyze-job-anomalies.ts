@@ -8,11 +8,12 @@
  * - AnalyzeJobAnomaliesOutput - The return type for the analyzeJobAnomalies function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const AnalyzeJobAnomaliesInputSchema = z.object({
   jobData: z.string().describe('JSON string containing an array of job objects, each with properties like status, backend, submitted time, elapsed time, etc.'),
+  isDemo: z.boolean().optional().describe('If true, returns simulated anomaly data without calling the LLM.'),
 });
 export type AnalyzeJobAnomaliesInput = z.infer<typeof AnalyzeJobAnomaliesInputSchema>;
 
@@ -34,8 +35,8 @@ export async function analyzeJobAnomalies(input: AnalyzeJobAnomaliesInput): Prom
 
 const prompt = ai.definePrompt({
   name: 'analyzeJobAnomaliesPrompt',
-  input: {schema: AnalyzeJobAnomaliesInputSchema},
-  output: {schema: AnalyzeJobAnomaliesOutputSchema},
+  input: { schema: AnalyzeJobAnomaliesInputSchema },
+  output: { schema: AnalyzeJobAnomaliesOutputSchema },
   prompt: `You are an expert AI system administrator for a quantum computing platform. Your task is to analyze job data to detect and explain anomalies in a way that is clear for both students and expert researchers.
 
 Analyze the provided job data for anomalies like:
@@ -63,13 +64,45 @@ const analyzeJobAnomaliesFlow = ai.defineFlow(
     inputSchema: AnalyzeJobAnomaliesInputSchema,
     outputSchema: AnalyzeJobAnomaliesOutputSchema,
   },
-  async input => {
+  async (input) => {
+    // 🛑 Mock Mode or Fallback
+    if (input.isDemo) {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
+      return generateMockAnomalies();
+    }
+
     try {
-      const {output} = await prompt(input);
+      const { output } = await prompt(input);
       return output!;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing job anomalies:', error);
+
+      // Fallback if API key is missing
+      if (error.message?.includes("API key") || error.status === 'FAILED_PRECONDITION') {
+        console.warn("⚠️ Gemini API Key missing. Falling back to mock data.");
+        return generateMockAnomalies();
+      }
+
       throw error;
     }
   }
 );
+
+// Helper for mock data
+function generateMockAnomalies(): AnalyzeJobAnomaliesOutput {
+  return {
+    anomalies: [
+      {
+        jobId: "c" + Math.random().toString(36).substr(2, 6),
+        anomalyDescription: "Unusual queue duration: This job waited 45 minutes in the queue for 'ibm_brisbane', which is 3x higher than the current average.",
+        severity: "medium"
+      },
+      {
+        jobId: "c" + Math.random().toString(36).substr(2, 6),
+        anomalyDescription: "Repeated Error: This is the 3rd job from user 'Bob' to fail with 'Qubit calibration failed' in the last hour.",
+        severity: "high"
+      }
+    ],
+    summary: "Simulated Analysis: The system observed elevated queue times on 'ibm_brisbane' and a pattern of calibration errors for recent submissions. Overall system health is stable but requires monitoring."
+  };
+}

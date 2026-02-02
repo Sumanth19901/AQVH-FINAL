@@ -1,4 +1,3 @@
-
 import logging
 import hashlib
 import os
@@ -121,72 +120,148 @@ async def job_to_dict(job) -> dict:
         # 🔍 Debug: Log available job attributes
         logger.debug(f"[DEBUG] Job attributes: {dir(job)}")
 
-        backend = job.backend()
-        backend_name = safe_call(backend, "name") if backend else None
-        qubit_count = safe_call(backend, "num_qubits") if backend else None
-
-
-        status = normalize_status(safe_call(job, "status"))
-
-        created = safe_call(job, "creation_date")
-        created_iso = created.astimezone(timezone.utc).isoformat() if created else None
-
-        completed = safe_call(job, "end_date")
-        completed_iso = completed.astimezone(timezone.utc).isoformat() if completed else None
-
-        elapsed_time = (completed - created).total_seconds() if created and completed else None
-
-        usage_seconds = safe_call(job, "usage")
-        qpu_seconds = safe_call(job, "qpu_usage_seconds")
-        logs = safe_call(job, "logs")
-        
-        # Get results, ensuring it's serializable
-        results_dict = {}
-        if status == "COMPLETED":
-            try:
-                job_results = await asyncio.to_thread(job.result)
-                if job_results:
-                    # Assuming results have a get_counts method
-                    if hasattr(job_results, 'get_counts'):
-                        counts = job_results.get_counts()
-                        # Qiskit Counts can be a list or single object
-                        if isinstance(counts, list):
-                            results_dict = {f"circuit_{i}": c.hex_outcomes() for i, c in enumerate(counts)}
-                        else:
-                            results_dict = counts.hex_outcomes()
-                    else:
-                        results_dict = {'data': 'Result object not in expected format.'}
-            except Exception as res_e:
-                logger.error(f"Error parsing results for job {safe_call(job, 'job_id')}: {res_e}")
-                results_dict = {'error': 'Could not serialize results.'}
-
-
-        status_history = safe_call(job, "status_history") or []
-        
-        # This is a method on the job object, call it safely
-        circuit_image_url = safe_call(job, "image")
-
-        # ✅ Safe fallback if user not found
-        raw_user = safe_call(job, "user") or safe_call(job, "instance") or "default"
+        # -------------------------
+        # 1. Basic Metadata
+        # -------------------------
+        job_id = safe_call(job, "job_id")
+        program_id = safe_call(job, "program_id")
+        instance = safe_call(job, "instance")
+        raw_user = safe_call(job, "user") or instance or "default"
         masked_user = mask_user_id(str(raw_user))
 
+        # -------------------------
+        # 2. Backend / Environment
+        # -------------------------
+        backend = job.backend()
+        backend_name = safe_call(backend, "name") if backend else "Unknown"
+        is_simulator = getattr(backend, "simulator", False) if backend else False
+        mode = "Simulator" if is_simulator else "Real Quantum Computer"
+        
+        # Region extraction (Best effort based on common CRN patterns)
+        region = "Global"
+        if instance:
+            if "us-east" in instance: region = "US East"
+            elif "eu-de" in instance: region = "Europe (Frankfurt)"
+            elif "osaka" in instance: region = "Asia Pacific (Osaka)"
+            elif "tokyo" in instance: region = "Asia Pacific (Tokyo)"
+            elif "sydney" in instance: region = "Asia Pacific (Sydney)"
+
+        # -------------------------
+        # 3. Status & Timeline
+        # -------------------------
+        status = normalize_status(safe_call(job, "status"))
+        created = safe_call(job, "creation_date")
+        completed = safe_call(job, "end_date")
+        
+        # Format dates
+        created_iso = created.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") if created else "N/A"
+        completed_iso = completed.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") if completed else "N/A"
+        
+        # Calculate Total Completion Time
+        total_completion_time = "N/A"
+        if created and completed:
+            diff = completed - created
+            total_completion_time = f"{round(diff.total_seconds(), 2)}s"
+
+        # Calculate Pending and In Progress times from status history
+        status_history = safe_call(job, "status_history") or []
+        pending_time = "N/A"
+        in_progress_time = "N/A"
+        
+        in_progress_dt = None
+        for h in status_history:
+            # h can be a dict or an object depending on the SDK version/backend
+            h_status_raw = getattr(h, 'status', h.get('status') if isinstance(h, dict) else None)
+            h_status = normalize_status(h_status_raw)
+            h_time = getattr(h, 'datetime', h.get('datetime') if isinstance(h, dict) else None)
+            
+            if h_status == "RUNNING" and h_time:
+                in_progress_dt = h_time
+                in_progress_time = h_time.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+                break
+        
+        if in_progress_dt and created:
+            pending_time = f"{round((in_progress_dt - created).total_seconds(), 2)}s"
+
+        # -------------------------
+        # 4. Usage & Metrics
+        # -------------------------
+        metrics = safe_call(job, "metrics") or {}
+        usage = metrics.get('usage', {})
+        qiskit_runtime_usage = f"{usage.get('seconds', 0)}s"
+        
+        # -------------------------
+        # 5. Inputs (PUBs, Observables, Circuits)
+        # -------------------------
+        inputs = safe_call(job, "inputs") or {}
+        pubs = inputs.get('pubs', [])
+        observables = inputs.get('observables', [])
+        
+        # Circuit Details (Diagram, Qasm, Qiskit)
+        qasm_str = "N/A"
+        qiskit_str = "N/A"
+        circuits = inputs.get('circuits', [])
+        if not circuits and 'circuit' in inputs:
+            circuits = [inputs['circuit']]
+            
+        if circuits and len(circuits) > 0:
+            try:
+                target_circuit = circuits[0]
+                qasm_str = target_circuit.qasm() if hasattr(target_circuit, 'qasm') else "N/A"
+                qiskit_str = str(target_circuit)
+            except Exception as circ_e:
+                logger.debug(f"Error parsing circuit: {circ_e}")
+        
+        # -------------------------
+        # 6. Result
+        # -------------------------
+        result_payload = "N/A"
+        if status == "COMPLETED":
+            try:
+                # result() is a blocking call, so we use to_thread to keep it async-friendly
+                job_result = await asyncio.to_thread(job.result)
+                if hasattr(job_result, 'get_counts'):
+                    result_payload = job_result.get_counts()
+                else:
+                    # Fallback for complex result objects (SamplerV2/EstimatorV2)
+                    result_payload = str(job_result)
+            except Exception as res_e:
+                logger.error(f"Error fetching results for job {job_id}: {res_e}")
+                result_payload = f"Error: {str(res_e)}"
+
+        # -------------------------
+        # 7. Final Payload Construction
+        # -------------------------
         return {
-            "id": safe_call(job, "job_id"),
-            "status": status,
-            "backend": backend_name,
-            "qubit_count": qubit_count,
-            "submitted": created_iso,
-            "elapsed_time": elapsed_time,
+            "job_id": job_id,
             "user": masked_user,
-            "qpu_seconds": qpu_seconds,
-            "logs": logs,
-            "results": results_dict,
-            "status_history": status_history,
-            "circuit_image_url": circuit_image_url,
+            "region": region,
+            "program": program_id,
+            "instance": instance,
+            "mode": mode,
+            "quantum_computer": backend_name,
+            "status_and_usage": {
+                "status": status,
+                "total_completion_time": total_completion_time,
+                "actual_qr_usage": usage,
+                "created": created_iso,
+                "pending_time": pending_time,
+                "in_progress": in_progress_time,
+                "qiskit_runtime_usage": qiskit_runtime_usage,
+                "completed": completed_iso,
+            },
+            "pubs": str(pubs) if pubs else "N/A",
+            "result": result_payload,
+            "observables": str(observables) if observables else "N/A",
+            "circuit": {
+                "diagram": safe_call(job, "image"), # Current image logic placeholder
+                "qasm": qasm_str,
+                "qiskit": qiskit_str
+            }
         }
     except Exception as e:
         logger.exception(f"❌ Error processing job: {e}")
-        return {}
+        return {"job_id": safe_call(job, "job_id"), "error": str(e)}
 
 
 def backend_to_dict(backend) -> dict:
@@ -328,9 +403,3 @@ async def get_metrics():
     except Exception as e:
         logger.exception("Error fetching metrics: %s", e)
         raise HTTPException(status_code=500, detail={"error": str(e)})
-
-    
-
-    
-
-

@@ -7,28 +7,25 @@ detection.
 
 ## Features
 
-- **Real-time Job Tracking:** Monitor the status of all quantum jobs (Queued, Running,
-  Completed, Error, Cancelled).
-- **Backend Health Dashboard:** View the status, queue depth, and error rates of all available
-  quantum backends.
-- **Performance KPIs:** Key metrics at a glance, including live job counts, average wait times,
-  and success rates.
-- **Historical Analysis:** Visualize job status trends over time with an interactive chart.
-- **AI-Powered Anomaly Detection:** Use Genkit to analyze job data and flag unusual behavior
-  or potential system issues.
-- **Responsive Design:** A clean and intuitive interface that works seamlessly across desktop
-  and mobile devices.
-- **Light & Dark Mode:** Switch between themes for your viewing comfort.
+- **Real-time Job Tracking:** Live monitoring of IBM Quantum jobs (Queued, Running, Completed, Error) with sub-second latency.
+- **Unified Dashboard:** Centralized view of all your quantum operations, sessions, and backend health status.
+- **AI Assistant:** Integrated Genkit-powered chat assistant to generate Qiskit code, explain errors, and optimize circuits.
+- **Anomaly Detection:** automated alerts for unexpected job failures, high queue times, or backend calibration issues.
+- **Authentication System:** Secure Login and Signup flows with simulated social providers (GitHub, Google) and password recovery.
+- **SaaS Pricing Model:** Interactive pricing page demonstrating tiered plans (Observer, Researcher, Lab) with monthly/annual toggles.
+- **Detailed Analytics:** Visualizations for QPU usage, job history, and error rates using Recharts.
+- **Dark Mode Support:** Fully responsive interface with seamless light/dark theme switching.
 
 ## Tech Stack
 
-- **Framework:** [Next.js](https://nextjs.org/) (App Router)
-- **AI Integration:** [Firebase Genkit](https://firebase.google.com/docs/genkit)
-- **UI:** [React](https://react.dev/) with [TypeScript](https://www.typescriptlang.org/)
+- **Frontend Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Backend API:** [FastAPI](https://fastapi.tiangolo.com/) (Python)
+- **AI Engine:** [Google Firebase Genkit](https://firebase.google.com/docs/genkit)
+- **Quantum Provider:** [IBM Quantum](https://quantum.ibm.com/) (Qiskit)
+- **UI Components:** [Shadcn UI](https://ui.shadcn.com/) & [Radix Primitives](https://www.radix-ui.com/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Components:** [ShadCN UI](https://ui.shadcn.com/)
-- **Charts:** [Recharts](https://recharts.org/)
-- **Icons:** [Lucide React](https://lucide.dev/guide/packages/lucide-react)
+- **Visualization:** [Recharts](https://recharts.org/)
+- **Icons:** [Lucide React](https://lucide.dev/)
 
 ## Running Locally
 
@@ -109,7 +106,9 @@ Run the following command to start the Next.js development server:
 npm run dev
 ```
 
-The application will be available at `http://localhost:9002`. Once the app is open, go to **Settings** in the header and **disable "Demo Mode"** to connect to your live backend.
+The application will be available at `http://localhost:9002`.
+
+**Note:** By default, the app may use mock data. You can toggle "Live Mode" in the **Settings Dialog** (gear icon in sidebar) to connect to the real Python backend if configured.
 
 ### 5. Run the Genkit Inspector (Optional)
 

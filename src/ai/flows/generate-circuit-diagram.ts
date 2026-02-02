@@ -62,7 +62,7 @@ User description: ${prompt}
 
       return {
         url: media.url,
-        status: 'SUCCESS',
+        status: 'SUCCESS' as const,
         usedPrompt: fullPrompt,
       };
     } catch (error) {
@@ -70,7 +70,7 @@ User description: ${prompt}
 
       return {
         url: 'https://picsum.photos/800/200', // fallback placeholder
-        status: 'FALLBACK',
+        status: 'FALLBACK' as const,
         usedPrompt: fullPrompt,
       };
     }
