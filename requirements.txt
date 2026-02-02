@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 qiskit
-qiskit-aer
+# qiskit-aer
 qiskit-ibm-runtime
 pydantic
 # qiskit_quantum_knownledge  # Package not found - commenting out
