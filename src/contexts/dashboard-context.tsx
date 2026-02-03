@@ -39,11 +39,14 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [periodicReportData, setPeriodicReportData] = useState<PeriodicReportData | null>(null);
   const [source, setSource] = useState<string>("mock");
   const [isAnomalyDialogOpen, setIsAnomalyDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async (force = false) => {
     if (isFetching && !force) return;
+    // Skip fetch during SSG/Build
+    if (typeof window === 'undefined') return;
+
     setIsFetching(true);
     const url = `/api/mock?demo=${isDemo}${force ? '&force=true' : ''}`;
     try {
@@ -64,7 +67,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error("Failed to fetch data:", error);
       toast({ variant: "destructive", title: "Error", description: `Could not fetch data: ${error.message}` });
-       // Fallback to mock data on error
+      // Fallback to mock data on error
       if (!isDemo) {
         const mockUrl = `/api/mock?demo=true&force=true`;
         const mockResponse = await fetch(mockUrl);
@@ -85,7 +88,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchData(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDemo]);
 
   useEffect(() => {
