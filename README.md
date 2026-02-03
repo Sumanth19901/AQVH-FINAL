@@ -127,23 +127,24 @@ enhance maintainability and scalability.
 
 ```
 quantum-sentinel/
-├── public/ # Static assets (images, icons, etc.)
+├── public/                 # Static assets (images, icons, etc.)
 ├── src/
-│ ├── app/ # Next.js App Router (pages & layouts)
-│ ├── components/ # Reusable React components
-│ │ ├── dashboard/ # Dashboard-specific components
-│ │ ├── ui/ # ShadCN UI components
-│ │ └── providers/ # React Context Providers
-│ ├── ai/ # Genkit AI logic
-│ │ ├── flows/ # AI pipelines (anomaly detection, etc.)
-│ │ └── genkit.ts # Genkit initialization
-│ ├── data/ # Mock/demo data
-│ ├── hooks/ # Custom React hooks
-│ └── lib/ # Utility functions & types
-├── backend.py # Python FastAPI backend server
-├── .env # Environment variable template
-├── next.config.ts # Next.js configuration
-├── tailwind.config.ts # Tailwind CSS configuration
-├── tsconfig.json # TypeScript configuration
-└── package.json
+│   ├── ai/                 # Genkit AI logic
+│   │   ├── flows/          # AI pipelines
+│   │   └── genkit.ts       # Genkit initialization
+│   ├── app/                # Next.js App Router (pages & layouts)
+│   ├── components/         # Reusable React components
+│   │   ├── dashboard/      # Dashboard-specific components
+│   │   ├── providers/      # Component providers
+│   │   └── ui/             # ShadCN UI components
+│   ├── contexts/           # Global React Contexts
+│   ├── data/               # Mock/demo data
+│   ├── hooks/              # Custom React hooks
+│   └── lib/                # Utility functions & types
+├── backend.py              # Python FastAPI backend server
+├── .env                    # Environment variable template
+├── next.config.js          # Next.js configuration
+├── tailwind.config.ts      # Tailwind CSS configuration
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Project dependencies
 ```
