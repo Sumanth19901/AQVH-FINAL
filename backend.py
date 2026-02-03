@@ -115,10 +115,10 @@ def safe_call(obj, attr):
         return None
 
 
-async def job_to_dict(job) -> dict:
+async def job_to_dict(job, lite: bool = False) -> dict:
     try:
         # 🔍 Debug: Log available job attributes
-        logger.debug(f"[DEBUG] Job attributes: {dir(job)}")
+        # logger.debug(f"[DEBUG] Job attributes: {dir(job)}")
 
         # -------------------------
         # 1. Basic Metadata
@@ -189,7 +189,46 @@ async def job_to_dict(job) -> dict:
         metrics = safe_call(job, "metrics") or {}
         usage = metrics.get('usage', {})
         qiskit_runtime_usage = f"{usage.get('seconds', 0)}s"
-        
+        elapsed_seconds = diff.total_seconds() if created and completed else 0
+        qpu_seconds = usage.get('seconds', 0)
+
+        # If lite mode, skip heavy details
+        if lite:
+             return {
+                "job_id": job_id,
+                "user": masked_user,
+                "region": region,
+                "program": program_id,
+                "instance": instance,
+                "mode": mode,
+                "quantum_computer": backend_name,
+                "backend": backend_name,
+                "submitted": created_iso,
+                "elapsed_time": elapsed_seconds,
+                "qpu_seconds": qpu_seconds,
+                "logs": "Detailed logs not available in list view.",
+                "status": status,
+                "status_history": status_history,
+                "status_and_usage": {
+                    "status": status,
+                    "total_completion_time": total_completion_time,
+                    "actual_qr_usage": usage,
+                    "created": created_iso,
+                    "pending_time": pending_time,
+                    "in_progress": in_progress_time,
+                    "qiskit_runtime_usage": qiskit_runtime_usage,
+                    "completed": completed_iso,
+                },
+                "pubs": "N/A",
+                "result": "N/A",
+                "observables": "N/A",
+                "circuit": {
+                    "diagram": None,
+                    "qasm": "N/A",
+                    "qiskit": "N/A"
+                }
+            }
+
         # -------------------------
         # 5. Inputs (PUBs, Observables, Circuits)
         # -------------------------
@@ -240,6 +279,13 @@ async def job_to_dict(job) -> dict:
             "instance": instance,
             "mode": mode,
             "quantum_computer": backend_name,
+            "backend": backend_name,
+            "submitted": created_iso,
+            "elapsed_time": elapsed_seconds,
+            "qpu_seconds": qpu_seconds,
+            "logs": "Logs available.",
+            "status": status,
+            "status_history": status_history,
             "status_and_usage": {
                 "status": status,
                 "total_completion_time": total_completion_time,
@@ -343,7 +389,7 @@ def create_job(submission: JobSubmission):
 
 
 @app.get("/api/jobs")
-async def list_jobs(limit: int = 20, status: Optional[str] = None):
+async def list_jobs(limit: int = 20, status: Optional[str] = None, lite: bool = False):
     if not service:
         raise HTTPException(
             status_code=503,
@@ -351,7 +397,7 @@ async def list_jobs(limit: int = 20, status: Optional[str] = None):
         )
     try:
         jobs = service.jobs(limit=limit, status=status) if status else service.jobs(limit=limit)
-        job_tasks = [job_to_dict(job) for job in jobs]
+        job_tasks = [job_to_dict(job, lite=lite) for job in jobs]
         return await asyncio.gather(*job_tasks)
     except Exception as e:
         logger.exception("Error listing jobs: %s", e)
@@ -367,7 +413,7 @@ async def get_job(job_id: str):
         )
     try:
         job = service.job(job_id)
-        return await job_to_dict(job)
+        return await job_to_dict(job, lite=False)
     except Exception as e:
         logger.exception("Error fetching job %s: %s", job_id, e)
         raise HTTPException(status_code=404, detail={"error": str(e)})
@@ -397,7 +443,7 @@ async def get_metrics():
         )
     try:
         jobs = service.jobs()
-        job_tasks = [job_to_dict(job) for job in jobs]
+        job_tasks = [job_to_dict(job, lite=True) for job in jobs]
         job_data = await asyncio.gather(*job_tasks)
         return await calculate_metrics(job_data)
     except Exception as e:

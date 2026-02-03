@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, Tooltip, Cell } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartTooltipContent, ChartContainer } from "@/components/ui/chart"
 import type { DailyJobSummary } from "@/lib/types"
@@ -30,34 +30,32 @@ export function DailySummaryChart({ data }: DailySummaryChartProps) {
           config={chartConfig}
           className="h-[300px] w-full"
         >
-          <ResponsiveContainer>
-            <BarChart data={chartData} margin={{left: -20, right: 20, bottom: 40}}>
-              <XAxis 
-                dataKey="name" 
-                type="category" 
-                tickLine={false} 
-                axisLine={false}
-                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
-                interval={0}
-                angle={-45}
-                textAnchor="end"
-                />
-              <YAxis 
-                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel nameKey="name" />}
-              />
-              <Bar dataKey="value" radius={5}>
-                {chartData.map((entry) => (
-                  <Cell key={`cell-${entry.name}`} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <BarChart data={chartData} margin={{ left: -20, right: 20, bottom: 40 }}>
+            <XAxis
+              dataKey="name"
+              type="category"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+              interval={0}
+              angle={-45}
+              textAnchor="end"
+            />
+            <YAxis
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel nameKey="name" />}
+            />
+            <Bar dataKey="value" radius={5}>
+              {chartData.map((entry) => (
+                <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+              ))}
+            </Bar>
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>

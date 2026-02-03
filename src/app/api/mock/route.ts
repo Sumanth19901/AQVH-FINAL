@@ -44,7 +44,7 @@ function calculateDailySummary(jobs: Job[]): DailyJobSummary {
 
 function calculatePeriodicReports(jobs: Job[]): PeriodicReportData {
   const now = new Date();
-  
+
   // Weekly data (last 4 weeks)
   const last4Weeks = eachWeekOfInterval({
     start: subDays(now, 28),
@@ -83,7 +83,7 @@ function calculatePeriodicReports(jobs: Job[]): PeriodicReportData {
       ERROR: monthJobs.filter(j => j.status === 'ERROR').length,
     };
   });
-  
+
   return { weekly: weeklyData, monthly: monthlyData };
 }
 
@@ -99,7 +99,7 @@ function generateMockConnectivity(backendName: string): ConnectivityData {
     "ibmq_auckland": 27,
   };
   const numQubits = qubitCountMap[backendName] || 27;
-  
+
   const nodes = Array.from({ length: numQubits }, (_, id) => ({
     id,
     group: Math.random() > 0.8 ? 'ancillary' : 'core',
@@ -112,7 +112,7 @@ function generateMockConnectivity(backendName: string): ConnectivityData {
     const source = Math.floor(Math.random() * numQubits);
     const target = Math.floor(Math.random() * numQubits);
     if (source === target) continue;
-    
+
     const linkKey = source < target ? `${source}-${target}` : `${target}-${source}`;
     if (!linkSet.has(linkKey)) {
       linkSet.add(linkKey);
@@ -128,37 +128,37 @@ function generateMockConnectivity(backendName: string): ConnectivityData {
 }
 
 const calculateAvgWaitTime = (jobs: Job[], now: Date): number => {
-    const relevantJobs = jobs.filter(j => j.status_history && j.status_history.some(s => s.status === 'QUEUED'));
-    if (relevantJobs.length === 0) return 0;
+  const relevantJobs = jobs.filter(j => j.status_history && j.status_history.some(s => s.status === 'QUEUED'));
+  if (relevantJobs.length === 0) return 0;
 
-    let totalWaitTime = 0;
-    let countedJobs = 0;
+  let totalWaitTime = 0;
+  let countedJobs = 0;
 
-    relevantJobs.forEach(job => {
-        const queuedEntry = job.status_history.find(s => s.status === 'QUEUED');
-        const runningEntry = job.status_history.find(s => s.status === 'RUNNING');
+  relevantJobs.forEach(job => {
+    const queuedEntry = job.status_history.find(s => s.status === 'QUEUED');
+    const runningEntry = job.status_history.find(s => s.status === 'RUNNING');
 
-        if (queuedEntry) {
-            const queuedTime = parseISO(queuedEntry.timestamp);
-            let waitTime = 0;
-            if (runningEntry) {
-                const runningTime = parseISO(runningEntry.timestamp);
-                waitTime = runningTime.getTime() - queuedTime.getTime();
-                countedJobs++;
-            } else if (job.status === 'QUEUED') {
-                waitTime = now.getTime() - queuedTime.getTime();
-                countedJobs++;
-            }
-            if(waitTime > 0) {
-              totalWaitTime += waitTime;
-            }
-        }
-    });
-    
-    if (countedJobs === 0) return 0;
+    if (queuedEntry) {
+      const queuedTime = parseISO(queuedEntry.timestamp);
+      let waitTime = 0;
+      if (runningEntry) {
+        const runningTime = parseISO(runningEntry.timestamp);
+        waitTime = runningTime.getTime() - queuedTime.getTime();
+        countedJobs++;
+      } else if (job.status === 'QUEUED') {
+        waitTime = now.getTime() - queuedTime.getTime();
+        countedJobs++;
+      }
+      if (waitTime > 0) {
+        totalWaitTime += waitTime;
+      }
+    }
+  });
 
-    const avgInMs = totalWaitTime / countedJobs;
-    return Math.max(0, avgInMs / 1000); // convert to seconds
+  if (countedJobs === 0) return 0;
+
+  const avgInMs = totalWaitTime / countedJobs;
+  return Math.max(0, avgInMs / 1000); // convert to seconds
 };
 
 
@@ -182,18 +182,18 @@ async function generateMockData(force = false) {
   const jobStatuses: JobStatus[] = ["COMPLETED", "RUNNING", "QUEUED", "ERROR", "CANCELLED"];
   const users = ["Alice", "Bob", "Charlie", "David", "Eve"];
 
-  
+
   // Generate jobs over a longer period for periodic reports
   const mockJobs: Job[] = Array.from({ length: 200 }, (_, i) => {
     let status = jobStatuses[Math.floor(Math.random() * jobStatuses.length)];
     const backend = mockBackends[Math.floor(Math.random() * mockBackends.length)];
-    
+
     const isRecent = i < 100;
-    const submittedTime = isRecent 
+    const submittedTime = isRecent
       ? subHours(now, Math.random() * 24)
       : subDays(now, Math.floor(Math.random() * 180));
-    
-    const queueDurationMinutes = Math.floor(Math.random() * 30); 
+
+    const queueDurationMinutes = Math.floor(Math.random() * 30);
     const runDurationMinutes = Math.floor(Math.random() * 10) + 1;
 
     const startTime = addMinutes(submittedTime, queueDurationMinutes);
@@ -201,10 +201,10 @@ async function generateMockData(force = false) {
 
     // Ensure recent completed jobs are actually completed today for daily summary
     if (isRecent && status === 'COMPLETED' && Math.random() > 0.5) {
-        finishedTime = subMinutes(now, Math.random() * 60 * 12);
-        if (finishedTime < startTime) {
-           finishedTime = addMinutes(startTime, runDurationMinutes);
-        }
+      finishedTime = subMinutes(now, Math.random() * 60 * 12);
+      if (finishedTime < startTime) {
+        finishedTime = addMinutes(startTime, runDurationMinutes);
+      }
     }
 
 
@@ -222,12 +222,12 @@ async function generateMockData(force = false) {
       status_history.push({ status, timestamp: formatISO(finishedTime) });
       finalStatus = status;
     } else if (now > startTime && now < finishedTime) {
-       finalStatus = 'RUNNING';
+      finalStatus = 'RUNNING';
     }
 
     if (finalStatus === 'RUNNING' && now > finishedTime) {
-       finalStatus = 'COMPLETED'; // Assume it completed if time has passed
-       status_history.push({ status: 'COMPLETED', timestamp: formatISO(finishedTime) });
+      finalStatus = 'COMPLETED'; // Assume it completed if time has passed
+      status_history.push({ status: 'COMPLETED', timestamp: formatISO(finishedTime) });
     }
 
     const elapsed_time = (finalStatus === 'COMPLETED' || finalStatus === 'ERROR' || finalStatus === 'CANCELLED')
@@ -249,9 +249,9 @@ async function generateMockData(force = false) {
       circuit_image_url: `https://picsum.photos/seed/${i}/800/200`,
     };
   });
-  
-  const allJobs = mockJobs.sort((a,b) => parseISO(b.submitted).getTime() - parseISO(a.submitted).getTime());
-  
+
+  const allJobs = mockJobs.sort((a, b) => parseISO(b.submitted).getTime() - parseISO(a.submitted).getTime());
+
   const liveJobs = allJobs.filter(j => j.status === 'RUNNING' || j.status === 'QUEUED').length;
   const successfulJobs = allJobs.filter(j => j.status === 'COMPLETED').length;
   const totalCompletedOrError = successfulJobs + allJobs.filter(j => j.status === 'ERROR').length;
@@ -297,7 +297,7 @@ async function getRealData() {
   const startTime = Date.now();
   const [backendsResponse, jobsResponse, metricsResponse] = await Promise.all([
     fetch(`${API_BASE_URL}/api/backends`),
-    fetch(`${API_BASE_URL}/api/jobs?limit=5000`), // Fetch all jobs for reporting
+    fetch(`${API_BASE_URL}/api/jobs?limit=1000&lite=true`), // Fetch recent jobs with lite mode for speed
     fetch(`${API_BASE_URL}/api/metrics`)
   ]);
   const endTime = Date.now();
@@ -305,7 +305,7 @@ async function getRealData() {
   if (!backendsResponse.ok) {
     throw new Error(`Backend API Error: ${backendsResponse.status} ${backendsResponse.statusText}`);
   }
-   if (!jobsResponse.ok) {
+  if (!jobsResponse.ok) {
     throw new Error(`Jobs API Error: ${jobsResponse.status} ${jobsResponse.statusText}`);
   }
   if (!metricsResponse.ok) {
@@ -316,7 +316,7 @@ async function getRealData() {
   const apiBackends = await backendsResponse.json();
   const apiJobs = await jobsResponse.json();
   const apiMetrics: Metrics = await metricsResponse.json();
-  
+
   const backends: Backend[] = apiBackends.map((b: any) => ({
     name: b.name,
     status: b.status.toLowerCase() as "active" | "inactive" | "maintenance",
@@ -339,18 +339,18 @@ async function getRealData() {
     status_history: j.status_history || [],
     circuit_image_url: j.circuit_image_url || `https://picsum.photos/seed/${j.id}/800/200`, // placeholder
   }));
-  
+
   const metrics: Metrics = {
     ...apiMetrics,
     api_speed: endTime - startTime,
   };
-  
+
   const now = new Date();
   const chartData: ChartData[] = Array.from({ length: 12 }, (_, i) => {
     const time = subHours(now, 11 - i);
     const timePlusHour = subHours(now, 10 - i);
     const jobsInWindow = jobs.filter(j => {
-       if (!j.submitted) return false;
+      if (!j.submitted) return false;
       const submittedDate = parseISO(j.submitted);
       return submittedDate >= time && submittedDate < timePlusHour;
     });

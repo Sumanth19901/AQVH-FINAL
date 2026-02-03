@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartTooltipContent, ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import type { ChartData } from "@/lib/types"
@@ -58,36 +58,34 @@ export function StatusChart({ data, view }: StatusChartProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={activeChartConfig} className="h-[300px] w-full">
-          <ResponsiveContainer>
-            <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="time"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                label={{ value: 'Time', position: 'insideBottom', dy: 20, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-              />
-              <YAxis
-                label={{ value: 'Number of Jobs', angle: -90, position: 'insideLeft', dx: -10, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip content={<ChartTooltipContent indicator="dot" />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <defs>
-                {Object.keys(activeChartConfig).map((key) => (
-                  <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={`var(--color-${key})`} stopOpacity={0.8} />
-                    <stop offset="95%" stopColor={`var(--color-${key})`} stopOpacity={0.1} />
-                  </linearGradient>
-                ))}
-              </defs>
-              {currentView.keys.map((key) => (
-                <Area key={key} type="monotone" dataKey={key} stackId="1" stroke={`var(--color-${key})`} fill={`url(#color${key})`} />
+          <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="time"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              label={{ value: 'Time', position: 'insideBottom', dy: 20, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            />
+            <YAxis
+              label={{ value: 'Number of Jobs', angle: -90, position: 'insideLeft', dx: -10, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip content={<ChartTooltipContent indicator="dot" />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <defs>
+              {Object.keys(activeChartConfig).map((key) => (
+                <linearGradient key={key} id={`color${key}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={`var(--color-${key})`} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={`var(--color-${key})`} stopOpacity={0.1} />
+                </linearGradient>
               ))}
-            </AreaChart>
-          </ResponsiveContainer>
+            </defs>
+            {currentView.keys.map((key) => (
+              <Area key={key} type="monotone" dataKey={key} stackId="1" stroke={`var(--color-${key})`} fill={`url(#color${key})`} />
+            ))}
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>

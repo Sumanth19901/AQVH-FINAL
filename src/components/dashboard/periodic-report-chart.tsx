@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartTooltipContent, ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -23,8 +23,8 @@ export function PeriodicReportChart({ data }: PeriodicReportChartProps) {
   const [activeTab, setActiveTab] = useState<"weekly" | "monthly">("weekly");
   const chartData = data ? data[activeTab] : [];
   const xAxisLabel = activeTab === 'weekly' ? 'Week' : 'Month';
-  const description = activeTab === 'weekly' 
-    ? 'Job status trends over the last 4 weeks.' 
+  const description = activeTab === 'weekly'
+    ? 'Job status trends over the last 4 weeks.'
     : 'Job status trends over the last 6 months.';
 
   return (
@@ -43,28 +43,26 @@ export function PeriodicReportChart({ data }: PeriodicReportChartProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[400px] w-full">
-          <ResponsiveContainer>
-            <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                tickLine={false} 
-                axisLine={false} 
-                tickMargin={8}
-                label={{ value: xAxisLabel, position: 'insideBottom', dy: 20, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-              />
-              <YAxis 
-                label={{ value: 'Number of Jobs', angle: -90, position: 'insideLeft', dx: -10, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip content={<ChartTooltipContent indicator="dot" />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              {Object.entries(chartConfig).map(([key, config]) => (
-                <Line key={key} type="monotone" dataKey={key} stroke={config.color} strokeWidth={2} dot={false} />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              label={{ value: xAxisLabel, position: 'insideBottom', dy: 20, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            />
+            <YAxis
+              label={{ value: 'Number of Jobs', angle: -90, position: 'insideLeft', dx: -10, fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip content={<ChartTooltipContent indicator="dot" />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            {Object.entries(chartConfig).map(([key, config]) => (
+              <Line key={key} type="monotone" dataKey={key} stroke={config.color} strokeWidth={2} dot={false} />
+            ))}
+          </LineChart>
         </ChartContainer>
       </CardContent>
     </Card>

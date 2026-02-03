@@ -1,4 +1,14 @@
 {
     "welcome": "Welcome",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    " IBM Quantum Observer": "IBM Quantum Observer",
+    "last Updated in 1 min": "Last updated {{time}}",
+    "refreshData": "Refresh Data",
+    "analyzeAnomalies": "Analyze Anomalies",
+    "openSettings": "Open Settings",
+    "settings": "Settings",
+    "demoMode": "Demo Mode",
+    "autoRefresh": "Auto Refresh",
+    "myAccount": "My Account",
+    "profile": "Profile"
 }
