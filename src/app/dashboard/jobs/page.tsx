@@ -19,7 +19,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useDashboard } from "@/contexts/dashboard-context";
 import { Loader } from "@/components/ui/loader";
 
-export const dynamic = 'force-dynamic';
+
 
 const statusStyles: Record<Job['status'], string> = {
   COMPLETED: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-700/80",
@@ -48,7 +48,7 @@ export default function AllJobsPage() {
   const handleRefresh = useCallback(() => {
     fetchData(true); // Force a refresh
   }, [fetchData]);
-  
+
   const filteredJobs = useMemo(() => {
     let filtered = jobs || [];
     if (statusFilter !== 'all') {
@@ -82,7 +82,7 @@ export default function AllJobsPage() {
     setJobsToExport(jobs);
     setIsExportDialogOpen(true);
   };
-  
+
   const handleCopy = (id: string) => {
     navigator.clipboard.writeText(id);
     toast({
@@ -98,7 +98,7 @@ export default function AllJobsPage() {
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1));
   };
-  
+
   const isLoading = isFetching && !lastUpdated;
 
 
@@ -107,11 +107,11 @@ export default function AllJobsPage() {
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-6">
         <Card>
           <CardHeader>
-             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                 <Button variant="outline" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="h-5 w-5" />
-                    <span className="sr-only">Back</span>
+                <Button variant="outline" size="icon" onClick={() => router.back()}>
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Back</span>
                 </Button>
                 <div>
                   <CardTitle>All Jobs ({filteredJobs.length})</CardTitle>
@@ -119,40 +119,40 @@ export default function AllJobsPage() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
-                 <div className="relative w-full md:w-auto">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search..."
-                      className="w-full pl-8 sm:w-[180px] lg:w-[200px]"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                 <div className="grid gap-1.5 w-full sm:w-auto">
-                    <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
-                      <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="COMPLETED">Completed</SelectItem>
-                        <SelectItem value="RUNNING">Running</SelectItem>
-                        <SelectItem value="QUEUED">Queued</SelectItem>
-                        <SelectItem value="ERROR">Error</SelectItem>
-                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                 </div>
+                <div className="relative w-full md:w-auto">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search..."
+                    className="w-full pl-8 sm:w-[180px] lg:w-[200px]"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-1.5 w-full sm:w-auto">
+                  <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="RUNNING">Running</SelectItem>
+                      <SelectItem value="QUEUED">Queued</SelectItem>
+                      <SelectItem value="ERROR">Error</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={handleRefresh} disabled={isFetching}>
-                        <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-                         <span className="sr-only">Refresh</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleExportClick(filteredJobs)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Export
-                    </Button>
+                  <Button variant="outline" size="icon" onClick={handleRefresh} disabled={isFetching}>
+                    <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                    <span className="sr-only">Refresh</span>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleExportClick(filteredJobs)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
                 </div>
               </div>
             </div>
@@ -187,12 +187,12 @@ export default function AllJobsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell onClick={() => handleJobSelect(job)} className="cursor-pointer">{job.backend}</TableCell>
-                       <TableCell onClick={() => handleJobSelect(job)} className="cursor-pointer">{job.qubit_count}</TableCell>
+                      <TableCell onClick={() => handleJobSelect(job)} className="cursor-pointer">{job.qubit_count}</TableCell>
                       <TableCell onClick={() => handleJobSelect(job)} className="cursor-pointer">
                         {formatDistanceToNow(new Date(job.submitted), { addSuffix: true })}
                       </TableCell>
                       <TableCell onClick={() => handleJobSelect(job)} className="cursor-pointer">{job.user}</TableCell>
-                       <TableCell>
+                      <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -230,13 +230,13 @@ export default function AllJobsPage() {
               <span>Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
               <div className="flex items-center gap-2">
                 <Label>Rows per page</Label>
-                 <Select value={jobsPerPage.toString()} onValueChange={(value) => setJobsPerPage(Number(value))}>
+                <Select value={jobsPerPage.toString()} onValueChange={(value) => setJobsPerPage(Number(value))}>
                   <SelectTrigger className="w-[70px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {JOBS_PER_PAGE_OPTIONS.map(option => (
-                       <SelectItem key={option} value={option.toString()}>{option}</SelectItem>
+                      <SelectItem key={option} value={option.toString()}>{option}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -263,7 +263,7 @@ export default function AllJobsPage() {
           </CardFooter>
         </Card>
       </main>
-       <JobDetailsDrawer
+      <JobDetailsDrawer
         job={selectedJob}
         isOpen={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}

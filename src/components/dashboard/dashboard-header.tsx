@@ -25,8 +25,8 @@ type DashboardHeaderProps = {
 export function DashboardHeader({
   onOpenProfile,
 }: DashboardHeaderProps) {
-  const { 
-    isDemo, 
+  const {
+    isDemo,
     setIsDemo,
     isFetching,
     lastUpdated,
@@ -39,19 +39,27 @@ export function DashboardHeader({
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
-  
+
   if (!hasMounted) {
-    return null; 
+    return null;
   }
 
   return (
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur sm:h-16 sm:px-6">
       <div className="flex items-center gap-2">
-        <SidebarTrigger variant="outline" className="p-1" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarTrigger variant="outline" className="p-1" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Toggle sidebar</p>
+          </TooltipContent>
+        </Tooltip>
+
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 256 256"
@@ -90,61 +98,73 @@ export function DashboardHeader({
             strokeLinejoin="round"
             strokeWidth="16"
           />
-          <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="16"/>
+          <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="16" />
         </svg>
         <h1 className="font-semibold md:text-xl whitespace-nowrap hidden sm:block">{t(' IBM Quantum Observer')}</h1>
       </div>
       <div className="flex w-full items-center justify-end gap-2 md:gap-4">
-         {hasMounted && lastUpdated && (
+        {hasMounted && lastUpdated && (
           <span className="text-xs text-muted-foreground hidden lg:block">
             {t('last Updated in 1 min', { time: formatDistanceToNow(lastUpdated, { addSuffix: true }) })}
           </span>
         )}
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" onClick={() => fetchData(true)} disabled={isFetching}>
-                    <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-                    <span className="sr-only">{t('refreshData')}</span>
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p>{t('refreshData')}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
 
-        <Button variant="outline" size="sm" onClick={() => setIsAnomalyDialogOpen(true)} className="hidden sm:inline-flex">
-            <BrainCircuit className="mr-2 h-4 w-4" />
-            {t('analyzeAnomalies')}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="icon" onClick={() => fetchData(true)} disabled={isFetching}>
+              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <span className="sr-only">{t('refreshData')}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{t('refreshData')}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="sm" onClick={() => setIsAnomalyDialogOpen(true)} className="hidden sm:inline-flex">
+              <BrainCircuit className="mr-2 h-4 w-4" />
+              {t('analyzeAnomalies')}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Run AI analysis on job data</p>
+          </TooltipContent>
+        </Tooltip>
 
         <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-            <DropdownMenuTrigger asChild>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="sr-only">{t('openSettings')}</span>
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span className="sr-only">{t('openSettings')}</span>
                 </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{t('settings')}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
-                         <Label htmlFor="demo-mode" className="font-normal flex-1">
-                            {t('demoMode')}
-                        </Label>
-                        <Switch id="demo-mode" checked={isDemo} onCheckedChange={setIsDemo} />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
-                        <Label htmlFor="auto-refresh" className="font-normal flex-1">
-                            {t('autoRefresh')}
-                        </Label>
-                        <Switch id="auto-refresh" checked={autoRefresh} onCheckedChange={setAutoRefresh} />
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t('settings')}</p>
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>{t('settings')}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
+                <Label htmlFor="demo-mode" className="font-normal flex-1">
+                  {t('demoMode')}
+                </Label>
+                <Switch id="demo-mode" checked={isDemo} onCheckedChange={setIsDemo} />
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
+                <Label htmlFor="auto-refresh" className="font-normal flex-1">
+                  {t('autoRefresh')}
+                </Label>
+                <Switch id="auto-refresh" checked={autoRefresh} onCheckedChange={setAutoRefresh} />
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
         </DropdownMenu>
 
         <LanguageSwitcher />
@@ -152,22 +172,29 @@ export function DashboardHeader({
         <ThemeToggle />
 
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                   <Avatar>
-                        <AvatarImage src="https://picsum.photos/seed/user/32/32" data-ai-hint="profile avatar" />
-                        <AvatarFallback>
-                            <User />
-                        </AvatarFallback>
-                    </Avatar>
+                  <Avatar>
+                    <AvatarImage src="https://picsum.photos/seed/user/32/32" data-ai-hint="profile avatar" />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onOpenProfile}>{t('profile')}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>{t('settings')}</DropdownMenuItem>
-            </DropdownMenuContent>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t('profile')}</p>
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onOpenProfile}>{t('profile')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>{t('settings')}</DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </header>

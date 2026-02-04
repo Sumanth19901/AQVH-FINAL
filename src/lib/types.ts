@@ -30,7 +30,7 @@ export interface Metrics {
   live_jobs: number;
   avg_wait_time: number; // in seconds
   success_rate: number; // as a percentage
-  open_sessions: number;
+  qubits_used: number; // Sum of qubits for active jobs
   api_speed?: number; // in milliseconds
 }
 

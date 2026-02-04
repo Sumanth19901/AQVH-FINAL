@@ -42,7 +42,7 @@ export default function DashboardLayout({
   return (
     <DashboardProvider>
       <SidebarProvider>
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen w-full">
           <Sidebar>
             <SidebarHeader>
               <div className="flex items-center gap-2 p-2">

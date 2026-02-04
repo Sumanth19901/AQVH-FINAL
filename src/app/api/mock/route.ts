@@ -257,13 +257,14 @@ async function generateMockData(force = false) {
   const totalCompletedOrError = successfulJobs + allJobs.filter(j => j.status === 'ERROR').length;
   const avgWaitTime = calculateAvgWaitTime(allJobs, now);
 
+  const qubitsUsed = allJobs.filter(j => j.status === 'RUNNING' || j.status === 'QUEUED').reduce((acc, job) => acc + (job.qubit_count || 0), 0);
 
   const mockMetrics: Metrics = {
     total_jobs: allJobs.length,
     live_jobs: liveJobs,
     avg_wait_time: avgWaitTime,
     success_rate: totalCompletedOrError > 0 ? (successfulJobs / totalCompletedOrError) * 100 : 100,
-    open_sessions: Math.floor(Math.random() * 5) + 1,
+    qubits_used: qubitsUsed,
     api_speed: Math.floor(Math.random() * (250 - 50 + 1)) + 50, // Random speed between 50ms and 250ms
   };
 

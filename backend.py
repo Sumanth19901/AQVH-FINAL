@@ -135,6 +135,7 @@ async def job_to_dict(job, lite: bool = False) -> dict:
         backend = job.backend()
         backend_name = safe_call(backend, "name") if backend else "Unknown"
         is_simulator = getattr(backend, "simulator", False) if backend else False
+        qubit_count = getattr(backend, "num_qubits", 0) if backend else 0
         mode = "Simulator" if is_simulator else "Real Quantum Computer"
         
         # Region extraction (Best effort based on common CRN patterns)
@@ -203,6 +204,7 @@ async def job_to_dict(job, lite: bool = False) -> dict:
                 "mode": mode,
                 "quantum_computer": backend_name,
                 "backend": backend_name,
+                "qubit_count": qubit_count,
                 "submitted": created_iso,
                 "elapsed_time": elapsed_seconds,
                 "qpu_seconds": qpu_seconds,
@@ -280,6 +282,7 @@ async def job_to_dict(job, lite: bool = False) -> dict:
             "mode": mode,
             "quantum_computer": backend_name,
             "backend": backend_name,
+            "qubit_count": qubit_count,
             "submitted": created_iso,
             "elapsed_time": elapsed_seconds,
             "qpu_seconds": qpu_seconds,
@@ -334,13 +337,16 @@ async def calculate_metrics(job_list: list) -> dict:
             job.get("elapsed_time", 0) for job in completed_jobs
         ) / len(completed_jobs) if completed_jobs else 0
         success_rate = (len(completed_jobs) / total_jobs) * 100 if total_jobs else 0
-        unique_users = {job.get("user") for job in job_list if job.get("user")}
+        
+        # Calculate Qubits Used (Capacity) - Sum of qubits for all active jobs
+        qubits_used = sum(job.get("qubit_count", 0) for job in job_list if job.get("status") in ["RUNNING", "QUEUED"])
+        
         return {
             "total_jobs": total_jobs,
             "live_jobs": live_jobs,
             "avg_wait_time": avg_wait_time,
             "success_rate": round(success_rate, 2),
-            "open_sessions": len(unique_users),
+            "qubits_used": qubits_used,
             "api_speed": 0  # You can measure request duration here if needed
         }
     except Exception as e:

@@ -16,6 +16,7 @@ import { AssistantChat } from "@/components/dashboard/assistant-chat";
 import { ApiSpeedGauge } from "@/components/dashboard/api-speed-gauge";
 import { StatusChart } from "@/components/dashboard/status-chart";
 import { PeriodicReportChart } from "@/components/dashboard/periodic-report-chart";
+import { QuantumLoader } from "@/components/ui/quantum-loader";
 import { useDashboard } from "@/contexts/dashboard-context";
 
 const JOBS_PER_PAGE = 10;
@@ -98,59 +99,56 @@ export default function DashboardPage() {
 
   const isLoading = isFetching && !lastUpdated;
 
+  if (isLoading) {
+    return <QuantumLoader />;
+  }
+
   return (
     <>
       <div className="space-y-4 sm:space-y-6">
-        {isLoading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-[126px] rounded-lg" />)}
-          </div>
-        ) : (
-          metrics && <KpiCards
-            {...metrics}
-            onCardClick={handleKpiCardClick}
-            activeView={activeView}
-          />
-        )}
+        {metrics && <KpiCards
+          {...metrics}
+          onCardClick={handleKpiCardClick}
+          activeView={activeView}
+        />
+        }
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           <div className="md:col-span-2">
-            {isLoading ? <Skeleton className="h-[600px] rounded-lg" /> : (
-              <JobsTable
-                jobs={paginatedJobs}
-                onJobSelect={handleJobSelect}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onNextPage={handleNextPage}
-                onPrevPage={handlePrevPage}
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                backendFilter={backendFilter}
-                onBackendFilterChange={setBackendFilter}
-                allBackends={backends?.map(b => b.name) || []}
-                isFetching={isFetching && !!lastUpdated}
-              />
-            )}
+            <JobsTable
+              jobs={paginatedJobs}
+              onJobSelect={handleJobSelect}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNextPage={handleNextPage}
+              onPrevPage={handlePrevPage}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              backendFilter={backendFilter}
+              onBackendFilterChange={setBackendFilter}
+              allBackends={backends?.map(b => b.name) || []}
+              isFetching={isFetching && !!lastUpdated}
+            />
           </div>
           <div className="space-y-4 sm:space-y-6 md:col-span-1">
-            {isLoading ? <Skeleton className="h-[450px] rounded-lg" /> : (dailySummary && <DailySummaryChart data={dailySummary} />)}
-            {isLoading ? <Skeleton className="h-[300px] rounded-lg" /> : (backends && <BackendCharts backends={backends} />)}
+            {dailySummary && <DailySummaryChart data={dailySummary} jobs={jobs || undefined} />}
+            {backends && <BackendCharts backends={backends} />}
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
           <div className="lg:col-span-3">
-            {isLoading ? <Skeleton className="h-[430px] rounded-lg" /> : (chartData && <StatusChart data={chartData} view={activeView} />)}
+            {chartData && <StatusChart data={chartData} view={activeView} />}
           </div>
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            {isLoading ? <Skeleton className="h-[276px] rounded-lg] mb-6" /> : (metrics && <ApiSpeedGauge speed={metrics.api_speed!} />)}
+            {metrics && <ApiSpeedGauge speed={metrics.api_speed!} />}
           </div>
         </div>
 
         <div >
-          {isLoading ? <Skeleton className="h-[450px] rounded-lg" /> : (periodicReportData && <PeriodicReportChart data={periodicReportData} />)}
+          {periodicReportData && <PeriodicReportChart data={periodicReportData} />}
         </div>
       </div>
 

@@ -71,7 +71,7 @@ export function JobsTable({
   isFetching
 }: JobsTableProps) {
   const { toast } = useToast();
-  
+
   const handleCopy = (id: string) => {
     navigator.clipboard.writeText(id);
     toast({
@@ -84,54 +84,54 @@ export function JobsTable({
     <Card>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <div>
-                <CardTitle>Live Jobs</CardTitle>
-                <CardDescription>Recent and ongoing jobs.</CardDescription>
-            </div>
-             <Link href="/dashboard/jobs" passHref>
-                <Button variant="outline" size="sm">
-                    <ListFilter className="mr-2 h-4 w-4" />
-                    View All
-                </Button>
+          <div>
+            <CardTitle>Live Jobs</CardTitle>
+            <CardDescription>Recent and ongoing jobs.</CardDescription>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/jobs">
+              <ListFilter className="mr-2 h-4 w-4" />
+              View All
             </Link>
+          </Button>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full">
-            <div className="relative w-full flex-grow">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                    type="search"
-                    placeholder="Search jobs..."
-                    className="w-full pl-8"
-                    value={searchQuery}
-                    onChange={(e) => onSearchQueryChange(e.target.value)}
-                />
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Select value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as any)}>
-                    <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="COMPLETED">Completed</SelectItem>
-                        <SelectItem value="RUNNING">Running</SelectItem>
-                        <SelectItem value="QUEUED">Queued</SelectItem>
-                        <SelectItem value="ERROR">Error</SelectItem>
-                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select value={backendFilter} onValueChange={(value) => onBackendFilterChange(value as any)}>
-                    <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="Filter by backend" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Backends</SelectItem>
-                        {allBackends.map(backend => (
-                            <SelectItem key={backend} value={backend}>{backend}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+          <div className="relative w-full flex-grow">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search jobs..."
+              className="w-full pl-8"
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as any)}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="RUNNING">Running</SelectItem>
+                <SelectItem value="QUEUED">Queued</SelectItem>
+                <SelectItem value="ERROR">Error</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={backendFilter} onValueChange={(value) => onBackendFilterChange(value as any)}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder="Filter by backend" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Backends</SelectItem>
+                {allBackends.map(backend => (
+                  <SelectItem key={backend} value={backend}>{backend}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -150,39 +150,39 @@ export function JobsTable({
             <TableBody>
               {isFetching && jobs.length === 0 ? (
                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      <Loader />
-                    </TableCell>
-                  </TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    <Loader />
+                  </TableCell>
+                </TableRow>
               ) : jobs.length > 0 ? (
-                  jobs.map((job) => (
-                    <TableRow key={job.id} onClick={() => onJobSelect(job)} className="cursor-pointer">
-                      <TableCell className="font-mono text-xs truncate max-w-[100px] sm:max-w-xs">{job.id}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={statusStyles[job.status]}>
-                          {job.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">{job.backend}</TableCell>
-                      <TableCell>{job.qubit_count}</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {formatDistanceToNow(new Date(job.submitted), { addSuffix: true })}
-                      </TableCell>
-                      <TableCell>{job.user}</TableCell>
-                    </TableRow>
-                  ))
-              ) : (
-                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      No results found for your filters.
+                jobs.map((job) => (
+                  <TableRow key={job.id} onClick={() => onJobSelect(job)} className="cursor-pointer">
+                    <TableCell className="font-mono text-xs truncate max-w-[100px] sm:max-w-xs">{job.id}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={statusStyles[job.status]}>
+                        {job.status}
+                      </Badge>
                     </TableCell>
+                    <TableCell className="hidden md:table-cell">{job.backend}</TableCell>
+                    <TableCell>{job.qubit_count}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatDistanceToNow(new Date(job.submitted), { addSuffix: true })}
+                    </TableCell>
+                    <TableCell>{job.user}</TableCell>
                   </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    No results found for your filters.
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
       </CardContent>
-       <CardFooter className="flex items-center justify-between">
+      <CardFooter className="flex items-center justify-between">
         <div className="text-xs text-muted-foreground">
           Showing page {currentPage} of {totalPages > 0 ? totalPages : 1}
         </div>
