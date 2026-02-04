@@ -18,25 +18,33 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    // Valid credentials for demo
+    const VALID_EMAIL = "demo@quantum.observer";
+    const VALID_PASSWORD = "password123";
+
     async function onSubmit(event: React.FormEvent) {
         event.preventDefault();
-        setIsLoading(true);
 
-        // Simulate API call (Now Instant)
-        setIsLoading(false);
-        toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-        });
+        const formData = new FormData(event.target as HTMLFormElement);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        // Validate credentials
+        if (email !== VALID_EMAIL || password !== VALID_PASSWORD) {
+            toast({
+                variant: "destructive",
+                title: "Invalid credentials",
+                description: "Email or password is incorrect. Please try again.",
+            });
+            return;
+        }
+
+        // Valid credentials - instant redirect
         router.push("/dashboard");
     }
 
     const handleSocialLogin = (provider: string) => {
-        setIsLoading(true);
-        toast({
-            title: `Signed in with ${provider}`,
-            description: "Redirecting to dashboard...",
-        });
+        // Social login always succeeds - instant redirect
         router.push("/dashboard");
     };
 
@@ -87,6 +95,7 @@ export default function LoginPage() {
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
+                                        name="email"
                                         placeholder="name@example.com"
                                         type="email"
                                         autoCapitalize="none"
@@ -109,6 +118,7 @@ export default function LoginPage() {
                                     <div className="relative">
                                         <Input
                                             id="password"
+                                            name="password"
                                             type={showPassword ? "text" : "password"}
                                             autoCapitalize="none"
                                             autoComplete="current-password"

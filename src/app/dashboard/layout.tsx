@@ -147,7 +147,7 @@ export default function DashboardLayout({
           </Sidebar>
           <div className="flex flex-1 flex-col">
             <DashboardHeader onOpenProfile={() => setIsProfileSheetOpen(true)} />
-            <main className="flex-1 bg-muted/30">{children}</main>
+            <main className="flex-1 bg-muted/30 p-4 md:p-6 lg:p-8">{children}</main>
           </div>
         </div>
         <ProfileSheet
