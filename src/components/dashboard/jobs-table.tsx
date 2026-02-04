@@ -54,7 +54,12 @@ const statusStyles: Record<JobStatus, string> = {
   UNKNOWN: "bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-400 border-gray-200 dark:border-gray-700/80",
 };
 
+import { useTranslation } from "react-i18next";
+
+// ... (keep interface and imports)
+
 export function JobsTable({
+  // ... keep props
   jobs,
   onJobSelect,
   currentPage,
@@ -71,6 +76,7 @@ export function JobsTable({
   isFetching
 }: JobsTableProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleCopy = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -85,13 +91,13 @@ export function JobsTable({
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
-            <CardTitle>Live Jobs</CardTitle>
-            <CardDescription>Recent and ongoing jobs.</CardDescription>
+            <CardTitle>{t('table.liveJobs')}</CardTitle>
+            <CardDescription>{t('table.recentAndOngoing')}</CardDescription>
           </div>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/jobs">
               <ListFilter className="mr-2 h-4 w-4" />
-              View All
+              {t('table.viewAll')}
             </Link>
           </Button>
         </div>
@@ -100,7 +106,7 @@ export function JobsTable({
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search jobs..."
+              placeholder={t('table.searchPlaceholder')}
               className="w-full pl-8"
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
@@ -109,10 +115,10 @@ export function JobsTable({
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Select value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as any)}>
               <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder={t('table.filterByStatus')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="all">{t('table.allStatuses')}</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>
                 <SelectItem value="RUNNING">Running</SelectItem>
                 <SelectItem value="QUEUED">Queued</SelectItem>
@@ -122,10 +128,10 @@ export function JobsTable({
             </Select>
             <Select value={backendFilter} onValueChange={(value) => onBackendFilterChange(value as any)}>
               <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="Filter by backend" />
+                <SelectValue placeholder={t('table.filterByBackend')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Backends</SelectItem>
+                <SelectItem value="all">{t('table.allBackends')}</SelectItem>
                 {allBackends.map(backend => (
                   <SelectItem key={backend} value={backend}>{backend}</SelectItem>
                 ))}
@@ -139,12 +145,12 @@ export function JobsTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Job ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Backend</TableHead>
-                <TableHead>Qubits</TableHead>
-                <TableHead className="hidden sm:table-cell">Submitted</TableHead>
-                <TableHead>User</TableHead>
+                <TableHead>{t('table.jobId')}</TableHead>
+                <TableHead>{t('table.status')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('table.backend')}</TableHead>
+                <TableHead>{t('table.qubits')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t('table.submitted')}</TableHead>
+                <TableHead>{t('table.user')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -174,7 +180,7 @@ export function JobsTable({
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    No results found for your filters.
+                    {t('table.noResults')}
                   </TableCell>
                 </TableRow>
               )}
@@ -184,7 +190,7 @@ export function JobsTable({
       </CardContent>
       <CardFooter className="flex items-center justify-between">
         <div className="text-xs text-muted-foreground">
-          Showing page {currentPage} of {totalPages > 0 ? totalPages : 1}
+          {t('table.showingPage', { current: currentPage, total: totalPages > 0 ? totalPages : 1 })}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -193,7 +199,7 @@ export function JobsTable({
             onClick={onPrevPage}
             disabled={currentPage === 1}
           >
-            Previous
+            {t('table.previous')}
           </Button>
           <Button
             variant="outline"
@@ -201,7 +207,7 @@ export function JobsTable({
             onClick={onNextPage}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            Next
+            {t('table.next')}
           </Button>
         </div>
       </CardFooter>

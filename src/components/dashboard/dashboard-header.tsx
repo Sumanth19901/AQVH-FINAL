@@ -123,9 +123,9 @@ export function DashboardHeader({
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="sm" onClick={() => setIsAnomalyDialogOpen(true)} className="hidden sm:inline-flex">
-              <BrainCircuit className="mr-2 h-4 w-4" />
-              {t('analyzeAnomalies')}
+            <Button variant="outline" size="icon" onClick={() => setIsAnomalyDialogOpen(true)}>
+              <BrainCircuit className="h-4 w-4" />
+              <span className="sr-only">{t('analyzeAnomalies')}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>

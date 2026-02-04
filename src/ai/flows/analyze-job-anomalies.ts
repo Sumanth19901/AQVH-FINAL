@@ -26,6 +26,7 @@ const AnalyzeJobAnomaliesOutputSchema = z.object({
     })
   ).describe('An array of anomalies detected in the job data.'),
   summary: z.string().describe('A summary of the analysis, including the total number of anomalies found and a brief overview of the system\'s health.'),
+  detailedReport: z.string().describe('A comprehensive technical report suitable for researchers. It should include methodology, data overview, detailed anomaly analysis, and recommendations.'),
 });
 export type AnalyzeJobAnomaliesOutput = z.infer<typeof AnalyzeJobAnomaliesOutputSchema>;
 
@@ -51,7 +52,10 @@ For each anomaly, provide a detailed but easy-to-understand 'anomalyDescription'
 
 The job data is provided as a JSON string: {{{jobData}}}
 
-Present your findings as a JSON object with an 'anomalies' array and a 'summary'. The summary should give a high-level overview of the system's health based on the findings.
+Present your findings as a JSON object with:
+1. 'anomalies': array of specific findings.
+2. 'summary': high-level overview.
+3. 'detailedReport': A comprehensive, formal research report. It should be structured with sections like "Analysis Methodology", "System Health Overview", "Detailed Anomaly Breakdown", and "Recommendations". Use dense, professional language suitable for a technical report.
 
 Example of a good anomaly description:
 "This job spent an unusually long time in the queue (5 hours) compared to other jobs on the 'ibm_brisbane' backend. This could indicate high demand for this specific quantum computer, or it might signal a potential issue with the job scheduler that is preventing jobs from starting promptly."
@@ -103,6 +107,22 @@ function generateMockAnomalies(): AnalyzeJobAnomaliesOutput {
         severity: "high"
       }
     ],
-    summary: "Simulated Analysis: The system observed elevated queue times on 'ibm_brisbane' and a pattern of calibration errors for recent submissions. Overall system health is stable but requires monitoring."
+    summary: "Simulated Analysis: The system observed elevated queue times on 'ibm_brisbane' and a pattern of calibration errors for recent submissions. Overall system health is stable but requires monitoring.",
+    detailedReport: `**Quantum System Anomaly Analysis Report**
+    
+**1. Executive Summary**
+This report details the findings of an automated anomaly detection scan performed on the recent job queue. The analysis methodology utilized statistical outlier detection on queue durations and error frequency analysis across available backend providers.
+
+**2. System Health Overview**
+The overall system stability is rated as MODERATE. While the majority of jobs (92%) completed within expected timeframes, specific localized issues were identified on the 'ibm_brisbane' QPU. Calibration stability appears nominal across other systems.
+
+**3. Detailed Anomaly Breakdown**
+- **Variance in Queue Wait Times**: A standard deviation of >15 minutes was observed for the 'ibm_brisbane' backend, significantly exceeding the baseline of 4 minutes. This suggests potential scheduler inefficiencies or a hung process on the job dispatcher.
+- **Error Pattern Recognition**: A cluster of 'Qubit calibration failed' errors was detected associated with User 'Bob'. This correlates with a specific pulse control experiment, potentially indicating malformed pulse schedules rather than hardware failure.
+
+**4. Recommendations**
+- Investigate the job dispatcher logs for 'ibm_brisbane' between 14:00 and 15:00 UTC.
+- Review recent pulse schedule submissions from User ID 'Bob' for compliance with device constraints.
+- Continue monitoring 'ibm_brisbane' queue depth for persistence of lag.`
   };
 }

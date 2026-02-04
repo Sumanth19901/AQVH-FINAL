@@ -20,56 +20,61 @@ interface KpiCardsProps extends Metrics {
   activeView: string;
 }
 
-const kpiConfig = [
-  {
-    title: "Total Jobs",
-    key: "total_jobs" as const,
-    icon: Layers,
-    description: "Total jobs processed in the period",
-    tooltip: "The cumulative count of all quantum jobs submitted, including completed, failed, and cancelled jobs.",
-    format: (value: number) => value.toString(),
-    clickable: false,
-  },
-  {
-    title: "Live Jobs",
-    key: "live_jobs" as const,
-    icon: Activity,
-    description: "Jobs currently running or queued",
-    tooltip: "Real-time count of jobs currently in the queue or being executed on quantum backend systems.",
-    format: (value: number) => value.toString(),
-    clickable: true,
-  },
-  {
-    title: "Avg Wait Time",
-    key: "avg_wait_time" as const,
-    icon: Clock,
-    description: "Average time jobs spend in queue",
-    tooltip: "The average duration a job remains in the queue before execution starts, calculated over the last 24 hours.",
-    format: (value: number) => value > 0 ? `${Math.round(value / 60)}m ${Math.round(value % 60)}s` : 'N/A',
-    clickable: false,
-  },
-  {
-    title: "Success Rate",
-    key: "success_rate" as const,
-    icon: CheckCircle,
-    description: "Percentage of jobs completed successfully",
-    tooltip: "The percentage of jobs that have completed successfully without errors out of the total jobs submitted.",
-    format: (value: number) => `${value.toFixed(1)}%`,
-    clickable: true,
-  },
-  {
-    title: "Qubits Used",
-    key: "qubits_used" as const,
-    icon: Cpu,
-    description: "Active Qubit Capacity",
-    tooltip: "Total number of qubits available across all currently active (running/queued) jobs.",
-    format: (value: number) => value.toString(),
-    clickable: false,
-  },
-];
+import { useTranslation } from "react-i18next";
+
+// ... (keep interface)
 
 export function KpiCards({ onCardClick, activeView, ...metrics }: KpiCardsProps) {
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const kpiConfig = [
+    {
+      title: t('kpi.totalJobs'),
+      key: "total_jobs" as const,
+      icon: Layers,
+      description: t('kpi.totalJobsDesc'),
+      tooltip: t('kpi.totalJobsDesc'), // Or add specific tooltip key, but desc works
+      format: (value: number) => value.toString(),
+      clickable: false,
+    },
+    {
+      title: t('kpi.liveJobs'),
+      key: "live_jobs" as const,
+      icon: Activity,
+      description: t('kpi.liveJobsDesc'),
+      tooltip: t('kpi.liveJobsDesc'),
+      format: (value: number) => value.toString(),
+      clickable: true,
+    },
+    {
+      title: t('kpi.avgWaitTime'),
+      key: "avg_wait_time" as const,
+      icon: Clock,
+      description: t('kpi.avgWaitTimeDesc'),
+      tooltip: t('kpi.avgWaitTimeDesc'),
+      format: (value: number) => value > 0 ? `${Math.round(value / 60)}m ${Math.round(value % 60)}s` : 'N/A',
+      clickable: false,
+    },
+    {
+      title: t('kpi.successRate'),
+      key: "success_rate" as const,
+      icon: CheckCircle,
+      description: t('kpi.successRateDesc'),
+      tooltip: t('kpi.successRateDesc'),
+      format: (value: number) => `${value.toFixed(1)}%`,
+      clickable: true,
+    },
+    {
+      title: t('kpi.qubitsUsed'),
+      key: "qubits_used" as const,
+      icon: Cpu,
+      description: t('kpi.qubitsUsedDesc'),
+      tooltip: t('kpi.qubitsUsedDesc'),
+      format: (value: number) => value.toString(),
+      clickable: false,
+    },
+  ];
 
   const handleCardClick = (kpiKey: string) => {
     if (kpiKey === 'open_sessions') {
@@ -80,7 +85,6 @@ export function KpiCards({ onCardClick, activeView, ...metrics }: KpiCardsProps)
   };
 
   const kpiItems = kpiConfig.filter(kpi => metrics[kpi.key] !== undefined && metrics[kpi.key] !== null);
-
 
   return (
     <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6`}>
@@ -103,7 +107,7 @@ export function KpiCards({ onCardClick, activeView, ...metrics }: KpiCardsProps)
         );
 
         return (
-          <TooltipProvider key={kpi.title}>
+          <TooltipProvider key={kpi.key}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Card

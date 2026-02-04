@@ -18,18 +18,20 @@ import {
 import {
   User,
   Bot,
-  FileText,
-  Calendar,
-  CircleGauge,
-  Home,
-  Calculator,
-  List,
+  LayoutGrid,
+  Monitor,
+  Zap,
+  GraduationCap,
+  Compass,
   Settings,
 } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { ProfileSheet } from "@/components/dashboard/profile-sheet"
 import { SettingsDialog } from "@/components/dashboard/settings-dialog"
 import { DashboardProvider } from "@/contexts/dashboard-context"
+import { useTranslation } from "react-i18next"
+
+// ... imports remain ...
 
 export default function DashboardLayout({
   children,
@@ -38,12 +40,13 @@ export default function DashboardLayout({
 }) {
   const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <DashboardProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
-          <Sidebar>
+          <Sidebar collapsible="icon">
             <SidebarHeader>
               <div className="flex items-center gap-2 p-2">
                 <svg
@@ -63,66 +66,47 @@ export default function DashboardLayout({
             </SidebarHeader>
             <SidebarContent>
               <SidebarGroup>
-                <SidebarGroupLabel>Main</SidebarGroupLabel>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard">
-                      <Home />
-                      Dashboard
+                    <SidebarMenuButton href="/dashboard" tooltip={t('nav.dashboard')}>
+                      <LayoutGrid />
+                      <span>{t('nav.dashboard')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/jobs">
-                      <List />
-                      All Jobs
+                    <SidebarMenuButton href="/dashboard/jobs" tooltip={t('nav.jobs')}>
+                      <Monitor />
+                      <span>{t('nav.jobs')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/sessions">
-                      <Calendar />
-                      Sessions
+                    <SidebarMenuButton href="/dashboard/sessions" tooltip={t('nav.sessions')}>
+                      <Zap />
+                      <span>{t('nav.sessions')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-              <SidebarSeparator />
-              <SidebarGroup className="p-2">
-                <SidebarGroupLabel>Tools</SidebarGroupLabel>
-                <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/ai-tools">
+                    <SidebarMenuButton href="/dashboard/ai-tools" tooltip={t('nav.aiAssistant')}>
                       <Bot />
-                      AI Tools
+                      <span>{t('nav.aiAssistant')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/compressor">
-                      <CircleGauge />
-                      Compressor
+                    <SidebarMenuButton href="/dashboard/docs" tooltip={t('nav.documentation')}>
+                      <GraduationCap />
+                      <span>{t('nav.documentation')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/calculator">
-                      <Calculator />
-                      Calculator
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-              <SidebarSeparator />
-              <SidebarGroup className="p-2">
-                <SidebarGroupLabel>Other</SidebarGroupLabel>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/note">
-                      <FileText />
-                      Note
+                    <SidebarMenuButton href="/dashboard/explore" tooltip={t('nav.explore')}>
+                      <Compass />
+                      <span>{t('nav.explore')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton href="/dashboard/export-history">
-                      <Calendar />
-                      Export's History
+                    <SidebarMenuButton href="/dashboard/account" tooltip={t('nav.account')}>
+                      <User />
+                      <span>{t('nav.account')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -131,15 +115,15 @@ export default function DashboardLayout({
             <SidebarFooter>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => setIsSettingsOpen(true)}>
+                  <SidebarMenuButton onClick={() => setIsSettingsOpen(true)} tooltip={t('settings')}>
                     <Settings />
-                    Settings
+                    <span>{t('settings')}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => setIsProfileSheetOpen(true)}>
+                  <SidebarMenuButton onClick={() => setIsProfileSheetOpen(true)} tooltip={t('nav.userInfo')}>
                     <User />
-                    User Information
+                    <span>{t('nav.userInfo')}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -159,6 +143,6 @@ export default function DashboardLayout({
           onOpenChange={setIsSettingsOpen}
         />
       </SidebarProvider>
-    </DashboardProvider>
+    </DashboardProvider >
   )
 }

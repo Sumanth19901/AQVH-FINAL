@@ -45,7 +45,7 @@ const dashboardAssistantPrompt = ai.definePrompt({
   name: 'dashboardAssistantPrompt',
   input: { schema: DashboardAssistantInputSchema },
   output: { schema: DashboardAssistantOutputSchema },
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   prompt: `
 You are the **Quantum Observer AI Assistant**, an expert guide for the Quantum Observer dashboard.
 
@@ -123,10 +123,20 @@ export async function askDashboardAssistant(
 ): Promise<DashboardAssistantOutput> {
   try {
     return await dashboardAssistantFlow(input);
-  } catch (err) {
+  } catch (err: any) {
     console.error('AI assistant error:', err);
+
+    // Check for common API key errors
+    const errorMessage = err?.message || '';
+    if (errorMessage.includes('API key') || errorMessage.includes('GOOGLE_GENAI_API_KEY') || errorMessage.includes('403')) {
+      return {
+        text: "⚠️ **Configuration Error**: It seems the AI API key is missing or invalid.\n\nPlease check your `.env` file and ensure `GOOGLE_GENAI_API_KEY` is set correctly.",
+        action: 'NONE',
+      };
+    }
+
     return {
-      text: "Sorry, I couldn't process that request at the moment.",
+      text: `Sorry, I encountered an error: ${errorMessage || 'Unknown error'}.`,
       action: 'NONE',
     };
   }

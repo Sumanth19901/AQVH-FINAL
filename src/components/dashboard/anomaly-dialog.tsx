@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -13,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { AlertTriangle, CheckCircle, BrainCircuit } from "lucide-react"
+import { jsPDF } from "jspdf";
+import { AlertTriangle, CheckCircle, BrainCircuit, Printer } from "lucide-react"
 import type { Job, Anomaly } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import { analyzeJobAnomalies } from "@/ai/flows/analyze-job-anomalies"
@@ -29,7 +29,7 @@ const ANALYSIS_JOB_LIMIT = 100;
 
 export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<{ anomalies: Anomaly[], summary: string } | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<{ anomalies: Anomaly[], summary: string, detailedReport?: string } | null>(null)
   const { toast } = useToast()
   const { isDemo } = useDashboard()
 
@@ -73,6 +73,70 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
     }
   };
 
+  const handlePrint = () => {
+    if (!analysisResult) return;
+
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(22);
+    doc.text("Job Anomaly Analysis Report", 20, 20);
+
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
+    doc.line(20, 32, 190, 32); // Horizontal line
+
+    let yPos = 45;
+
+    // Use detailed report if available, otherwise summary
+    const reportText = analysisResult.detailedReport || analysisResult.summary;
+
+    doc.setFontSize(12);
+    const splitReport = doc.splitTextToSize(reportText, 170);
+
+    // Check pages for long report
+    splitReport.forEach((line: string) => {
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, 20, yPos);
+      yPos += 7;
+    });
+
+    // Add specific anomaly list at the end if space permits or new page
+    if (analysisResult.anomalies.length > 0) {
+      yPos += 10;
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Detected Anomalies List:", 20, yPos);
+      doc.setFont("helvetica", "normal");
+      yPos += 10;
+
+      analysisResult.anomalies.forEach((anomaly: any) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.setFontSize(11);
+        doc.setTextColor(anomaly.severity === 'high' ? 200 : 0, 0, 0); // Red for high
+        doc.text(`[${anomaly.severity.toUpperCase()}] Job: ${anomaly.jobId}`, 20, yPos);
+        doc.setTextColor(0, 0, 0);
+        yPos += 6;
+
+        const desc = doc.splitTextToSize(anomaly.anomalyDescription, 160);
+        doc.text(desc, 25, yPos);
+        yPos += (desc.length * 6) + 5;
+      });
+    }
+
+    doc.save("quantum-anomaly-report.pdf");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl">
@@ -95,7 +159,7 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
               <Alert variant="default" className="bg-primary/10 border-primary/20">
                 <CheckCircle className="h-4 w-4 text-primary" />
                 <AlertTitle>Analysis Summary</AlertTitle>
-                <AlertDescription>{analysisResult.summary}</AlertDescription>
+                <AlertDescription className="whitespace-pre-line">{analysisResult.summary}</AlertDescription>
               </Alert>
               {analysisResult.anomalies.length > 0 ? (
                 analysisResult.anomalies.map((anomaly, index) => (
@@ -125,6 +189,12 @@ export function AnomalyDialog({ jobs, isOpen, onOpenChange }: AnomalyDialogProps
           )}
         </div>
         <DialogFooter>
+          {analysisResult && (
+            <Button variant="secondary" onClick={handlePrint} className="mr-auto">
+              <Printer className="mr-2 h-4 w-4" />
+              Print Report
+            </Button>
+          )}
           <Button variant="outline" onClick={() => handleClose(false)}>Close</Button>
           <Button onClick={handleAnalysis} disabled={isLoading}>
             {isLoading ? "Analyzing..." : analysisResult ? "Re-run Analysis" : "Run Analysis"}

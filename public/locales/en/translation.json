@@ -10,5 +10,47 @@
     "demoMode": "Demo Mode",
     "autoRefresh": "Auto Refresh",
     "myAccount": "My Account",
-    "profile": "Profile"
+    "profile": "Profile",
+    "nav": {
+        "dashboard": "Dashboard",
+        "jobs": "Jobs",
+        "sessions": "Sessions",
+        "aiAssistant": "AI Assistant",
+        "documentation": "Documentation",
+        "explore": "Explore",
+        "account": "Account",
+        "userInfo": "User Information"
+    },
+    "kpi": {
+        "totalJobs": "Total Jobs",
+        "totalJobsDesc": "Total jobs processed in the period",
+        "liveJobs": "Live Jobs",
+        "liveJobsDesc": "Jobs currently running or queued",
+        "avgWaitTime": "Avg Wait Time",
+        "avgWaitTimeDesc": "Average time jobs spend in queue",
+        "successRate": "Success Rate",
+        "successRateDesc": "Percentage of jobs completed successfully",
+        "qubitsUsed": "Qubits Used",
+        "qubitsUsedDesc": "Active Qubit Capacity"
+    },
+    "table": {
+        "liveJobs": "Live Jobs",
+        "recentAndOngoing": "Recent and ongoing jobs.",
+        "viewAll": "View All",
+        "searchPlaceholder": "Search jobs...",
+        "filterByStatus": "Filter by status",
+        "filterByBackend": "Filter by backend",
+        "allStatuses": "All Statuses",
+        "allBackends": "All Backends",
+        "jobId": "Job ID",
+        "status": "Status",
+        "backend": "Backend",
+        "qubits": "Qubits",
+        "submitted": "Submitted",
+        "user": "User",
+        "previous": "Previous",
+        "next": "Next",
+        "noResults": "No results found for your filters.",
+        "showingPage": "Showing page {{current}} of {{total}}"
+    }
 }

@@ -16,7 +16,7 @@ import { AssistantChat } from "@/components/dashboard/assistant-chat";
 import { ApiSpeedGauge } from "@/components/dashboard/api-speed-gauge";
 import { StatusChart } from "@/components/dashboard/status-chart";
 import { PeriodicReportChart } from "@/components/dashboard/periodic-report-chart";
-import { QuantumLoader } from "@/components/ui/quantum-loader";
+import { Loader } from "@/components/ui/loader";
 import { useDashboard } from "@/contexts/dashboard-context";
 
 const JOBS_PER_PAGE = 10;
@@ -100,7 +100,7 @@ export default function DashboardPage() {
   const isLoading = isFetching && !lastUpdated;
 
   if (isLoading) {
-    return <QuantumLoader />;
+    return <Loader className="h-[50vh]" text="Loading dashboard data..." />;
   }
 
   return (
@@ -113,8 +113,8 @@ export default function DashboardPage() {
         />
         }
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <JobsTable
               jobs={paginatedJobs}
               onJobSelect={handleJobSelect}
@@ -131,18 +131,11 @@ export default function DashboardPage() {
               allBackends={backends?.map(b => b.name) || []}
               isFetching={isFetching && !!lastUpdated}
             />
-          </div>
-          <div className="space-y-4 sm:space-y-6 md:col-span-1">
-            {dailySummary && <DailySummaryChart data={dailySummary} jobs={jobs || undefined} />}
-            {backends && <BackendCharts backends={backends} />}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-          <div className="lg:col-span-3">
             {chartData && <StatusChart data={chartData} view={activeView} />}
           </div>
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-6 lg:col-span-1">
+            {dailySummary && <DailySummaryChart data={dailySummary} jobs={jobs || undefined} />}
+            {backends && <BackendCharts backends={backends} />}
             {metrics && <ApiSpeedGauge speed={metrics.api_speed!} />}
           </div>
         </div>
