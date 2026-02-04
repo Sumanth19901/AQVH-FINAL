@@ -19,27 +19,22 @@ export default function SignupPage() {
         event.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            toast({
-                title: "Account created!",
-                description: "Welcome to Quantum Sentinel.",
-            });
-            router.push("/dashboard");
-        }, 1500);
+        // Simulate API call (Now Instant)
+        setIsLoading(false);
+        toast({
+            title: "Account created!",
+            description: "Welcome to Quantum Sentinel.",
+        });
+        router.push("/dashboard");
     }
 
     const handleSocialLogin = (provider: string) => {
         setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            toast({
-                title: `Signed in with ${provider}`,
-                description: "Redirecting to dashboard...",
-            });
-            router.push("/dashboard");
-        }, 1500);
+        toast({
+            title: `Signed in with ${provider}`,
+            description: "Redirecting to dashboard...",
+        });
+        router.push("/dashboard");
     };
 
     return (
@@ -157,7 +152,7 @@ export default function SignupPage() {
                 <div className="absolute inset-0 bg-zinc-900" />
                 <div className="absolute inset-0 bg-gradient-to-bl from-indigo-900 via-purple-900 to-background opacity-90" />
                 <div className="absolute inset-0" style={{
-                    backgroundImage: "url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2670&auto=format&fit=crop')",
+                    backgroundImage: "url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=75&w=1920&auto=format&fit=crop')",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     opacity: 0.4,

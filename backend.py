@@ -352,7 +352,7 @@ async def calculate_metrics(job_list: list) -> dict:
 # API Routes
 # -------------------------
 @app.post("/api/jobs")
-def create_job(submission: JobSubmission):
+async def create_job(submission: JobSubmission):
     if not service:
         raise HTTPException(
             status_code=503,
@@ -363,7 +363,9 @@ def create_job(submission: JobSubmission):
         
         # Use a simulator by default
         backend_name = submission.backend or "ibmq_qasm_simulator"
-        backend = service.get_backend(backend_name)
+        
+        # Run blocking service calls in thread
+        backend = await asyncio.to_thread(service.get_backend, backend_name)
 
         # Example: Create a simple Bell state circuit
         # This is just a placeholder to create a valid job
@@ -379,7 +381,8 @@ def create_job(submission: JobSubmission):
         sampler = Sampler(backend, options=options)
         
         # The Sampler primitive expects a list of circuits
-        job = sampler.run([qc], shots=1024)
+        # sampler.run is blocking
+        job = await asyncio.to_thread(sampler.run, [qc], shots=1024)
         
         logger.info(f"Submitted job {job.job_id()} to backend {backend_name}")
         return {"job_id": job.job_id(), "status": "QUEUED"}
@@ -396,7 +399,12 @@ async def list_jobs(limit: int = 20, status: Optional[str] = None, lite: bool = 
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        jobs = service.jobs(limit=limit, status=status) if status else service.jobs(limit=limit)
+        # Wrap blocking service.jobs call
+        if status:
+            jobs = await asyncio.to_thread(service.jobs, limit=limit, status=status)
+        else:
+            jobs = await asyncio.to_thread(service.jobs, limit=limit)
+            
         job_tasks = [job_to_dict(job, lite=lite) for job in jobs]
         return await asyncio.gather(*job_tasks)
     except Exception as e:
@@ -420,14 +428,14 @@ async def get_job(job_id: str):
 
 
 @app.get("/api/backends")
-def list_backends():
+async def list_backends():
     if not service:
         raise HTTPException(
             status_code=503,
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        backends = service.backends()
+        backends = await asyncio.to_thread(service.backends)
         return [backend_to_dict(b) for b in backends]
     except Exception as e:
         logger.exception("Error listing backends: %s", e)
@@ -442,7 +450,7 @@ async def get_metrics():
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        jobs = service.jobs()
+        jobs = await asyncio.to_thread(service.jobs)
         job_tasks = [job_to_dict(job, lite=True) for job in jobs]
         job_data = await asyncio.gather(*job_tasks)
         return await calculate_metrics(job_data)

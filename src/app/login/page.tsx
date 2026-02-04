@@ -22,27 +22,22 @@ export default function LoginPage() {
         event.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            toast({
-                title: "Welcome back!",
-                description: "You have successfully signed in.",
-            });
-            router.push("/dashboard");
-        }, 1500);
+        // Simulate API call (Now Instant)
+        setIsLoading(false);
+        toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+        });
+        router.push("/dashboard");
     }
 
     const handleSocialLogin = (provider: string) => {
         setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            toast({
-                title: `Signed in with ${provider}`,
-                description: "Redirecting to dashboard...",
-            });
-            router.push("/dashboard");
-        }, 1500);
+        toast({
+            title: `Signed in with ${provider}`,
+            description: "Redirecting to dashboard...",
+        });
+        router.push("/dashboard");
     };
 
     return (
@@ -52,7 +47,7 @@ export default function LoginPage() {
                 <div className="absolute inset-0 bg-zinc-900" />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-background opacity-90" />
                 <div className="absolute inset-0" style={{
-                    backgroundImage: "url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=3270&auto=format&fit=crop')",
+                    backgroundImage: "url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=75&w=1920&auto=format&fit=crop')",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     opacity: 0.4,
