@@ -5,7 +5,7 @@ backend systems, built with Next.js, ShadCN UI, and Genkit. It provides a compre
 of job statuses, backend health, and performance metrics, along with AI-powered anomaly
 detection.
 
-## Features
+## Features LVS
 
 - **Real-time Job Tracking:** Live monitoring of IBM Quantum jobs (Queued, Running, Completed, Error) with sub-second latency.
 - **Unified Dashboard:** Centralized view of all your quantum operations, sessions, and backend health status.
