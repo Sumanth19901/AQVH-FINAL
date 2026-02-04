@@ -19,22 +19,91 @@ export default function SignupPage() {
         event.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call (Now Instant)
-        setIsLoading(false);
-        toast({
-            title: "Account created!",
-            description: "Welcome to Quantum Sentinel.",
-        });
-        router.push("/dashboard");
+        const formData = new FormData(event.target as HTMLFormElement);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        const confirmPassword = formData.get("confirm-password") as string;
+
+        if (password !== confirmPassword) {
+            toast({
+                variant: "destructive",
+                title: "Passwords do not match",
+                description: "Please make sure your passwords match.",
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const { auth } = await import('@/lib/firebase');
+            const { createUserWithEmailAndPassword } = await import('firebase/auth');
+
+            if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+                throw new Error("Firebase configuration missing. Please check your .env file.");
+            }
+
+            await createUserWithEmailAndPassword(auth, email, password);
+
+            toast({
+                title: "Account created!",
+                description: "Welcome to Quantum Sentinel.",
+            });
+            router.push("/dashboard");
+
+        } catch (error: any) {
+            console.error("Signup error:", error);
+            let errorMessage = "Failed to create account. Please try again.";
+
+            if (error.message.includes("Firebase configuration missing")) {
+                errorMessage = "Firebase is not configured. Please add your credentials to .env file.";
+            } else if (error.code === 'auth/email-already-in-use') {
+                errorMessage = "Email is already in use.";
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = "Password is too weak.";
+            }
+
+            toast({
+                variant: "destructive",
+                title: "Signup Failed",
+                description: errorMessage,
+            });
+            setIsLoading(false);
+        }
     }
 
-    const handleSocialLogin = (provider: string) => {
+    const handleSocialLogin = async (providerName: string) => {
         setIsLoading(true);
-        toast({
-            title: `Signed in with ${provider}`,
-            description: "Redirecting to dashboard...",
-        });
-        router.push("/dashboard");
+        try {
+            const { auth, googleProvider, githubProvider } = await import('@/lib/firebase');
+            const { signInWithPopup } = await import('firebase/auth');
+
+            const provider = providerName === 'Google' ? googleProvider : githubProvider;
+
+            if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+                throw new Error("Firebase configuration missing. Please check your .env file.");
+            }
+
+            await signInWithPopup(auth, provider);
+            router.push("/dashboard");
+        } catch (error: any) {
+            console.error("Login error:", error);
+            let errorMessage = "Failed to sign in. Please try again.";
+
+            if (error.message.includes("Firebase configuration missing")) {
+                errorMessage = "Firebase is not configured. Please add your credentials to .env file.";
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                errorMessage = "Sign in cancelled.";
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                errorMessage = "An account already exists with the same email address but different sign-in credentials.";
+            }
+
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: errorMessage,
+            });
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -58,6 +127,7 @@ export default function SignupPage() {
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
+                                        name="email"
                                         placeholder="name@example.com"
                                         type="email"
                                         autoCapitalize="none"
@@ -70,6 +140,7 @@ export default function SignupPage() {
                                     <Label htmlFor="password">Password</Label>
                                     <Input
                                         id="password"
+                                        name="password"
                                         type="password"
                                         autoCapitalize="none"
                                         disabled={isLoading}
@@ -79,6 +150,7 @@ export default function SignupPage() {
                                     <Label htmlFor="confirm-password">Confirm Password</Label>
                                     <Input
                                         id="confirm-password"
+                                        name="confirm-password"
                                         type="password"
                                         autoCapitalize="none"
                                         disabled={isLoading}
