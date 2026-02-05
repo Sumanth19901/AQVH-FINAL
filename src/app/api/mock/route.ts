@@ -327,18 +327,18 @@ async function getRealData() {
   }));
 
   const jobs: Job[] = apiJobs.map((j: any) => ({
-    id: j.id,
-    status: j.status.toUpperCase() as JobStatus,
-    backend: j.backend,
-    qubit_count: j.qubit_count,
-    submitted: j.submitted,
+    id: j.job_id || j.id, // Support both backend formats
+    status: (j.status || "UNKNOWN").toUpperCase() as JobStatus,
+    backend: j.backend || "Unknown",
+    qubit_count: j.qubit_count || 0,
+    submitted: j.submitted || new Date().toISOString(),
     elapsed_time: j.elapsed_time || 0,
-    user: j.user,
+    user: j.user || "Unknown",
     qpu_seconds: j.qpu_seconds || 0,
     logs: j.logs || "No logs available.",
     results: j.results || {},
     status_history: j.status_history || [],
-    circuit_image_url: j.circuit_image_url || `https://picsum.photos/seed/${j.id}/800/200`, // placeholder
+    circuit_image_url: j.circuit_image_url || `https://picsum.photos/seed/${j.job_id || j.id}/800/200`, // placeholder
   }));
 
   const metrics: Metrics = {

@@ -24,74 +24,28 @@ export default function LoginPage() {
 
     async function onSubmit(event: React.FormEvent) {
         event.preventDefault();
-        setIsLoading(true);
 
         const formData = new FormData(event.target as HTMLFormElement);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
-        try {
-            // Validate credentials
-            if (email !== VALID_EMAIL || password !== VALID_PASSWORD) {
-                // Simulate network delay for realism
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                toast({
-                    variant: "destructive",
-                    title: "Invalid credentials",
-                    description: "Email or password is incorrect. Please try again.",
-                });
-                setIsLoading(false);
-                return;
-            }
-
-            // Valid credentials - instant redirect
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 800));
-            router.push("/dashboard");
-        } catch (error) {
-            setIsLoading(false);
+        // Validate credentials
+        if (email !== VALID_EMAIL || password !== VALID_PASSWORD) {
             toast({
                 variant: "destructive",
-                title: "Error",
-                description: "Something went wrong. Please try again.",
+                title: "Invalid credentials",
+                description: "Email or password is incorrect. Please try again.",
             });
+            return;
         }
+
+        // Valid credentials - instant redirect
+        router.push("/dashboard");
     }
 
-    const handleSocialLogin = async (providerName: string) => {
-        setIsLoading(true);
-        try {
-            const { auth, googleProvider, githubProvider } = await import('@/lib/firebase');
-            const { signInWithPopup } = await import('firebase/auth');
-
-            const provider = providerName === 'Google' ? googleProvider : githubProvider;
-
-            if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-                throw new Error("Firebase configuration missing. Please check your .env file.");
-            }
-
-            await signInWithPopup(auth, provider);
-            router.push("/dashboard");
-        } catch (error: any) {
-            console.error("Login error:", error);
-            let errorMessage = "Failed to sign in. Please try again.";
-
-            if (error.message.includes("Firebase configuration missing")) {
-                errorMessage = "Firebase is not configured. Please add your credentials to .env file.";
-            } else if (error.code === 'auth/popup-closed-by-user') {
-                errorMessage = "Sign in cancelled.";
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
-                errorMessage = "An account already exists with the same email address but different sign-in credentials.";
-            }
-
-            toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: errorMessage,
-            });
-            setIsLoading(false);
-        }
+    const handleSocialLogin = (provider: string) => {
+        // Social login always succeeds - instant redirect
+        router.push("/dashboard");
     };
 
     return (
@@ -110,7 +64,7 @@ export default function LoginPage() {
 
                 <div className="relative z-20 flex items-center text-lg font-medium">
                     <CircuitBoard className="mr-2 h-6 w-6" />
-                    Quantum Sentinel
+
                 </div>
                 <div className="relative z-20 mt-auto">
                     <blockquote className="space-y-2">

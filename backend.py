@@ -48,6 +48,16 @@ else:
     logger.warning("⚠️  Running without live IBM Quantum connection - API endpoints may fail")
 
 # -------------------------
+# Startup Check (Merged from debug_ibm.py)
+# -------------------------
+if service:
+    try:
+        backends = service.backends()
+        logger.info(f"✅ Found {len(backends)} available backends: {[b.name for b in backends]}")
+    except Exception as e:
+        logger.error(f"❌ Failed to fetch backends on startup: {e}")
+
+# -------------------------
 # Pydantic Models
 # -------------------------
 class JobSubmission(BaseModel):
@@ -135,7 +145,6 @@ async def job_to_dict(job, lite: bool = False) -> dict:
         backend = job.backend()
         backend_name = safe_call(backend, "name") if backend else "Unknown"
         is_simulator = getattr(backend, "simulator", False) if backend else False
-        qubit_count = getattr(backend, "num_qubits", 0) if backend else 0
         mode = "Simulator" if is_simulator else "Real Quantum Computer"
         
         # Region extraction (Best effort based on common CRN patterns)
@@ -204,7 +213,6 @@ async def job_to_dict(job, lite: bool = False) -> dict:
                 "mode": mode,
                 "quantum_computer": backend_name,
                 "backend": backend_name,
-                "qubit_count": qubit_count,
                 "submitted": created_iso,
                 "elapsed_time": elapsed_seconds,
                 "qpu_seconds": qpu_seconds,
@@ -282,7 +290,6 @@ async def job_to_dict(job, lite: bool = False) -> dict:
             "mode": mode,
             "quantum_computer": backend_name,
             "backend": backend_name,
-            "qubit_count": qubit_count,
             "submitted": created_iso,
             "elapsed_time": elapsed_seconds,
             "qpu_seconds": qpu_seconds,
@@ -313,20 +320,170 @@ async def job_to_dict(job, lite: bool = False) -> dict:
         return {"job_id": safe_call(job, "job_id"), "error": str(e)}
 
 
-def backend_to_dict(backend) -> dict:
-    try:
-        status_obj = backend.status()
-        return {
-            "name": backend.name(),
-            "status": "active" if status_obj.operational else "inactive",
-            "qubit_count": backend.num_qubits,
-            "queue_depth": status_obj.pending_jobs,
-            "error_rate": getattr(backend, "error_rate", lambda: None)(),
-        }
-    except Exception as e:
-        logger.error(f"Error processing backend: {e}")
-        return {}
 
+import numpy as np
+
+def calculate_median(values):
+    if not values:
+        return None
+    return float(np.median(values))
+
+def backend_to_dict(backend, detailed: bool = False) -> dict:
+    try:
+        # 1. Basic Status & Config (Fast)
+        status_obj = backend.status()
+        config = backend.configuration()
+        
+        # Safe attribute access
+        def get_attr(obj, name, default=None):
+            return getattr(obj, name, default) or default
+
+        # Processor Type Formatting
+        proc_type_raw = get_attr(config, "processor_type")
+        processor_type = "N/A"
+        if isinstance(proc_type_raw, dict):
+            processor_type = f"{proc_type_raw.get('family', 'Unknown')} {proc_type_raw.get('revision', '')}".strip()
+        
+        # Region (Mock logic as it's not directly in backend obj usually, derived from instance)
+        # In a real app we might pass the 'service' to this function to cross-reference
+        region = "Global" 
+
+        base_info = {
+            "name": backend.name,
+            "status": "active" if status_obj.operational else "inactive",
+            "operational": status_obj.operational,
+            "status_msg": status_obj.status_msg,
+            "qubit_count": backend.num_qubits,
+            "pending_jobs": status_obj.pending_jobs,
+            "qpu_version": get_attr(config, "backend_version", "N/A"),
+            "processor_type": processor_type,
+            "basis_gates": get_attr(config, "basis_gates", []),
+            "region": region, # Placeholder, will update if derived upstream
+            "clops": get_attr(config, "clops", "N/A"), # Some backends expose this
+        }
+
+        if not detailed:
+            return base_info
+
+        # 2. Detailed Calibration Data (Slow - requires fetching properties)
+        props = backend.properties()
+        if not props:
+            base_info["calibration_message"] = "No calibration data available"
+            return base_info
+
+        # Extract Qubit Metrics (T1, T2, Readout)
+        t1s = []
+        t2s = []
+        readout_errs = []
+        
+        qubit_data = [] # For Table View
+        
+        for i, qubits_props in enumerate(props.qubits):
+            # Qiskit properties structure: list of Nduv objects
+            q_map = {item.name: item.value for item in qubits_props}
+            
+            t1 = q_map.get("T1", 0)
+            t2 = q_map.get("T2", 0)
+            ro = q_map.get("readout_error", 0)
+            
+            # Convert units if necessary (T1/T2 usually in us or s, let's normalize to us for display if < 1)
+            # Standard Qiskit unit is often seconds. Let's convert to microseconds (us) for readability if needed.
+            # However, looking at the logs: "T1: 48.53 us". Qiskit parser handles units. 
+            # The raw .value is likely in the unit specified by .unit. 
+            # We will trust the raw value for stats but might need normalization. 
+            # Actually, standardizing on microseconds (us) is good for T1/T2.
+            
+            # Helper to find item with name and get value + unit
+            def get_prop_val(name):
+                for item in qubits_props:
+                    if item.name == name:
+                        return item.value, item.unit
+                return None, None
+            
+            val_t1, unit_t1 = get_prop_val("T1")
+            val_t2, unit_t2 = get_prop_val("T2")
+            
+            # Normalize to microseconds
+            if unit_t1 == "s": val_t1 *= 1e6
+            if unit_t1 == "ns": val_t1 /= 1e3
+            if unit_t2 == "s": val_t2 *= 1e6
+            if unit_t2 == "ns": val_t2 /= 1e3
+            
+            if val_t1: t1s.append(val_t1)
+            if val_t2: t2s.append(val_t2)
+            if ro: readout_errs.append(ro)
+            
+            qubit_data.append({
+                "qubit": i,
+                "T1": val_t1,
+                "T2": val_t2,
+                "readout_error": ro,
+                # Add other specific props if needed
+            })
+
+        # Extract Gate Metrics (2Q error, SX, CZ)
+        # Gates are in props.gates
+        gate_metrics = {
+            "2q_error": [],
+            "sx_error": [],
+            "cz_error": [],
+            "ecr_error": []
+        }
+        
+        gate_data = []
+        
+        for gate in props.gates:
+            name = gate.name # e.g., 'cx0_1', 'sx0', 'ecr1_2'
+            # Find gate error
+            error = 0
+            for param in gate.parameters:
+                if param.name == "gate_error":
+                    error = param.value
+                    break
+            
+            gate_info = {
+                "name": name,
+                "qubits": gate.qubits,
+                "error": error,
+                "gate": gate.gate # 'cx', 'sx', 'ecr'
+            }
+            gate_data.append(gate_info)
+
+            # Categorize
+            if getattr(gate, 'qubits') and len(gate.qubits) == 2:
+                gate_metrics["2q_error"].append(error)
+                if gate.gate == "cz": gate_metrics["cz_error"].append(error)
+                if gate.gate == "ecr": gate_metrics["ecr_error"].append(error)
+            elif gate.gate == "sx":
+                gate_metrics["sx_error"].append(error)
+
+        # Merge specific gate errors for "2Q error" (generic)
+        # Some backends use ECR, some CX, some CZ.
+        all_2q = gate_metrics["2q_error"]
+        
+        # Calculate Medians
+        metrics = {
+            "T1 (median)": f"{calculate_median(t1s):.2f} us",
+            "T2 (median)": f"{calculate_median(t2s):.2f} us",
+            "Readout error (median)": f"{calculate_median(readout_errs):.4e}",
+            "2Q error (median)": f"{calculate_median(all_2q):.4e}" if all_2q else "N/A",
+            "2Q error (best)": f"{min(all_2q):.4e}" if all_2q else "N/A",
+            "SX error (median)": f"{calculate_median(gate_metrics['sx_error']):.4e}" if gate_metrics['sx_error'] else "N/A",
+            "CZ error (median)": f"{calculate_median(gate_metrics['cz_error']):.4e}" if gate_metrics['cz_error'] else "N/A",
+        }
+
+        # Calibration Data for Visualization
+        calibration_data = {
+            "qubits": qubit_data, # For table/map
+            "gates": gate_data,   # For map connectivity
+            "metrics": metrics    # Summary stats
+        }
+        
+        return {**base_info, **metrics, "calibration_data": calibration_data}
+
+    except Exception as e:
+        logger.error(f"Error processing backend {backend}: {e}")
+        return {"name": getattr(backend, "name", "Unknown"), "error": str(e)}
 
 async def calculate_metrics(job_list: list) -> dict:
     try:
@@ -337,16 +494,13 @@ async def calculate_metrics(job_list: list) -> dict:
             job.get("elapsed_time", 0) for job in completed_jobs
         ) / len(completed_jobs) if completed_jobs else 0
         success_rate = (len(completed_jobs) / total_jobs) * 100 if total_jobs else 0
-        
-        # Calculate Qubits Used (Capacity) - Sum of qubits for all active jobs
-        qubits_used = sum(job.get("qubit_count", 0) for job in job_list if job.get("status") in ["RUNNING", "QUEUED"])
-        
+        unique_users = {job.get("user") for job in job_list if job.get("user")}
         return {
             "total_jobs": total_jobs,
             "live_jobs": live_jobs,
             "avg_wait_time": avg_wait_time,
             "success_rate": round(success_rate, 2),
-            "qubits_used": qubits_used,
+            "open_sessions": len(unique_users),
             "api_speed": 0  # You can measure request duration here if needed
         }
     except Exception as e:
@@ -358,7 +512,7 @@ async def calculate_metrics(job_list: list) -> dict:
 # API Routes
 # -------------------------
 @app.post("/api/jobs")
-async def create_job(submission: JobSubmission):
+def create_job(submission: JobSubmission):
     if not service:
         raise HTTPException(
             status_code=503,
@@ -369,9 +523,7 @@ async def create_job(submission: JobSubmission):
         
         # Use a simulator by default
         backend_name = submission.backend or "ibmq_qasm_simulator"
-        
-        # Run blocking service calls in thread
-        backend = await asyncio.to_thread(service.get_backend, backend_name)
+        backend = service.get_backend(backend_name)
 
         # Example: Create a simple Bell state circuit
         # This is just a placeholder to create a valid job
@@ -387,8 +539,7 @@ async def create_job(submission: JobSubmission):
         sampler = Sampler(backend, options=options)
         
         # The Sampler primitive expects a list of circuits
-        # sampler.run is blocking
-        job = await asyncio.to_thread(sampler.run, [qc], shots=1024)
+        job = sampler.run([qc], shots=1024)
         
         logger.info(f"Submitted job {job.job_id()} to backend {backend_name}")
         return {"job_id": job.job_id(), "status": "QUEUED"}
@@ -405,12 +556,7 @@ async def list_jobs(limit: int = 20, status: Optional[str] = None, lite: bool = 
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        # Wrap blocking service.jobs call
-        if status:
-            jobs = await asyncio.to_thread(service.jobs, limit=limit, status=status)
-        else:
-            jobs = await asyncio.to_thread(service.jobs, limit=limit)
-            
+        jobs = service.jobs(limit=limit, status=status) if status else service.jobs(limit=limit)
         job_tasks = [job_to_dict(job, lite=lite) for job in jobs]
         return await asyncio.gather(*job_tasks)
     except Exception as e:
@@ -434,18 +580,40 @@ async def get_job(job_id: str):
 
 
 @app.get("/api/backends")
-async def list_backends():
+def list_backends():
     if not service:
         raise HTTPException(
             status_code=503,
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        backends = await asyncio.to_thread(service.backends)
-        return [backend_to_dict(b) for b in backends]
+        backends = service.backends()
+        return [backend_to_dict(b, detailed=False) for b in backends]
     except Exception as e:
         logger.exception("Error listing backends: %s", e)
         raise HTTPException(status_code=500, detail={"error": str(e)})
+
+
+@app.get("/api/backends/{name}")
+def get_backend_details(name: str):
+    if not service:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
+        )
+    try:
+        # Fetch specific backend (this might be slightly inefficient if we could cache, but safe)
+        backend = service.backend(name)
+        if not backend:
+             raise HTTPException(status_code=404, detail="Backend not found")
+        return backend_to_dict(backend, detailed=True)
+    except Exception as e:
+        logger.exception(f"Error fetching backend {name}: {e}")
+        # Check if it was a 404 from Qiskit
+        if "not found" in str(e).lower():
+             raise HTTPException(status_code=404, detail="Backend not found")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @app.get("/api/metrics")
@@ -456,7 +624,7 @@ async def get_metrics():
             detail={"error": "IBM Quantum service not available. Please configure credentials in .env file."}
         )
     try:
-        jobs = await asyncio.to_thread(service.jobs)
+        jobs = service.jobs()
         job_tasks = [job_to_dict(job, lite=True) for job in jobs]
         job_data = await asyncio.gather(*job_tasks)
         return await calculate_metrics(job_data)
