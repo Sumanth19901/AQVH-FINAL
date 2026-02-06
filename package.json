@@ -49,7 +49,7 @@
     "i18next-http-backend": "^2.5.2",
     "jspdf": "^2.5.2",
     "lucide-react": "^0.475.0",
-    "next": "^13.4.0",  // Updated Next.js to the latest version
+    "next": "^13.4.0",
     "next-themes": "^0.3.0",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
