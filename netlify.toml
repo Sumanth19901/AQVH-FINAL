@@ -1,11 +1,10 @@
 [build]
-  command = ""
-  ## The publish directory is handled automatically by the plugin.
-  ## Do not manually set it to .next
-
-[build.environment]
-  NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  command = "npm run build"  # Build command for Next.js
+  publish = "out"  # or ".next", depending on how you set up your Next.js project
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+  package = "@netlify/plugin-nextjs"  # Ensure this plugin is included for Next.js
+
+[context.production.environment]
+  NODE_VERSION = "16"  # You can set the specific Node version here
+  NPM_FLAGS = "--legacy-peer-deps"  # Optional, depending on your dependencies
