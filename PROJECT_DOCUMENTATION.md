@@ -1,4 +1,4 @@
-# Quantum Sentinel: Project Documentation
+# IBM Quantum Observer: Project Documentation
 
 **Date:** October 26, 2023  
 **Version:** 1.0  
@@ -22,7 +22,7 @@
 
 ## 1. Executive Summary
 
-**Quantum Sentinel** is a cutting-edge, real-time monitoring dashboard designed specifically for the quantum computing era. It bridges the gap between complex quantum backend operations and user-friendly management. By leveraging modern web technologies and Generative AI, Quantum Sentinel provides researchers and developers with a comprehensive view of their quantum jobs, system health, and performance metrics, all while offering intelligent insights through an integrated AI assistant.
+**IBM Quantum Observer** is a cutting-edge, real-time monitoring dashboard designed specifically for the quantum computing era. It bridges the gap between complex quantum backend operations and user-friendly management. By leveraging modern web technologies and Generative AI, IBM Quantum Observer provides researchers and developers with a comprehensive view of their quantum jobs, system health, and performance metrics, all while offering intelligent insights through an integrated AI assistant.
 
 ---
 
@@ -32,7 +32,7 @@
 As quantum computing scales, managing job queues, monitoring backend uptime (QPU availability), and debugging circuit errors becomes increasingly complex. Existing tools often lack real-time visual feedback or require deep command-line expertise to diagnose issues, leading to inefficient resource usage and slower research cycles.
 
 ### 2.2 Proposed Solution
-Quantum Sentinel offers a centralized platform that visualizes the status of IBM Quantum backends and jobs. It incorporates **Google’s Genkit** to analyze error logs and detect anomalies automatically, reducing downtime and providing actionable advice to users without them needing to sift through raw logs.
+IBM Quantum Observer offers a centralized platform that visualizes the status of IBM Quantum backends and jobs. It incorporates **Google’s Genkit** to analyze error logs and detect anomalies automatically, reducing downtime and providing actionable advice to users without them needing to sift through raw logs.
 
 ---
 

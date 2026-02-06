@@ -61,7 +61,7 @@ export default function DashboardLayout({
                   <path d="M144,168a40,40,0,1,1,40-40" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16" />
                   <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" strokeMiterlimit="10" strokeWidth="16" />
                 </svg>
-                <span className="font-semibold group-data-[collapsible=icon]:hidden">Quantum Sentinel</span>
+                <span className="font-semibold group-data-[collapsible=icon]:hidden">IBM Quantum Observer</span>
               </div>
             </SidebarHeader>
             <SidebarContent>

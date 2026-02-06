@@ -17,7 +17,7 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Quantum Sentinel",
+  title: "IBM Quantum Observer",
   description: "A real-time monitoring dashboard for quantum computing jobs and backend systems.",
 };
 

@@ -1,7 +1,7 @@
 {
     "welcome": "Bienvenue",
     "dashboard": "Tableau de bord",
-    " IBM Quantum Observer": "Observateur Quantique IBM",
+    "IBM Quantum Observer": "IBM Quantum Observer",
     "last Updated in 1 min": "Dernière mise à jour {{time}}",
     "refreshData": "Actualiser les données",
     "analyzeAnomalies": "Analyser les anomalies",

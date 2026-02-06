@@ -1,6 +1,6 @@
-# Quantum Sentinel
+# IBM Quantum Observer
 
-Quantum Sentinel is a real-time monitoring dashboard for quantum computing jobs and
+IBM Quantum Observer is a real-time monitoring dashboard for quantum computing jobs and
 backend systems, built with Next.js, ShadCN UI, and Genkit. It provides a comprehensive view
 of job statuses, backend health, and performance metrics, along with AI-powered anomaly
 detection.
@@ -29,7 +29,7 @@ detection.
 
 ## Running Locally
 
-To run the Quantum Sentinel application on your local machine, follow these steps.
+To run the IBM Quantum Observer application on your local machine, follow these steps.
 
 ### Prerequisites
 

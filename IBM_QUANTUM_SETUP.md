@@ -1,6 +1,6 @@
 # IBM Quantum Setup Guide
 
-This guide will help you obtain and configure your IBM Quantum credentials to enable live backend connectivity for the Quantum Sentinel application.
+This guide will help you obtain and configure your IBM Quantum credentials to enable live backend connectivity for the IBM Quantum Observer application.
 
 ## Prerequisites
 

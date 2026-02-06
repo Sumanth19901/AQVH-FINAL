@@ -46,7 +46,7 @@ export default function SignupPage() {
 
             toast({
                 title: "Account created!",
-                description: "Welcome to Quantum Sentinel.",
+                description: "Welcome to IBM Quantum Observer.",
             });
             router.push("/dashboard");
 
@@ -233,7 +233,7 @@ export default function SignupPage() {
 
                 <div className="relative z-20 flex items-center text-lg font-medium">
                     <CircuitBoard className="mr-2 h-6 w-6" />
-                    Quantum Sentinel
+                    IBM Quantum Observer
                 </div>
                 <div className="relative z-20 mt-auto">
                     <blockquote className="space-y-2">

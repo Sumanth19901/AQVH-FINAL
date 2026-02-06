@@ -13,7 +13,7 @@ export default function AboutPage() {
             <header className="px-4 lg:px-6 h-14 flex items-center border-b backdrop-blur-sm fixed w-full z-10 bg-background/80">
                 <Link className="flex items-center justify-center" href="/">
                     <CircuitBoard className="h-6 w-6 text-primary" />
-                    <span className="ml-2 text-lg font-bold">Quantum Sentinel</span>
+                    <span className="ml-2 text-lg font-bold">IBM Quantum Observer</span>
                 </Link>
                 <nav className="ml-auto flex gap-4 sm:gap-6">
                     <Link className="text-sm font-medium hover:underline underline-offset-4" href="/#features">
@@ -33,7 +33,7 @@ export default function AboutPage() {
 
                     {/* Header Section */}
                     <div className="space-y-4 text-center">
-                        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">About Quantum Sentinel</h1>
+                        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">About IBM Quantum Observer</h1>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             Bridging the gap between quantum experiments and actionable insights through real-time observability and AI.
                         </p>
@@ -50,7 +50,7 @@ export default function AboutPage() {
                                 Researchers often stare at black boxes, waiting for jobs to complete without knowing if errors are occurring in real-time.
                             </p>
                             <p className="text-muted-foreground leading-relaxed">
-                                **Quantum Sentinel** was built to change that. We provide a "glass box" view into IBM Quantum backends, utilizing advanced AI to detect anomalies, explain circuit performance, and optimize resource usage—saving researchers valuable time and computational credits.
+                                **IBM Quantum Observer** was built to change that. We provide a "glass box" view into IBM Quantum backends, utilizing advanced AI to detect anomalies, explain circuit performance, and optimize resource usage—saving researchers valuable time and computational credits.
                             </p>
                         </div>
                         <div className="relative aspect-square rounded-xl overflow-hidden shadow-xl border bg-muted/20">
@@ -96,7 +96,7 @@ export default function AboutPage() {
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold tracking-tight text-center">Built With Modern Tech</h2>
                         <p className="text-center text-muted-foreground max-w-2xl mx-auto">
-                            Quantum Sentinel is architected for performance and scalability, combining the best of web and data science ecosystems.
+                            IBM Quantum Observer is architected for performance and scalability, combining the best of web and data science ecosystems.
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div className="p-4 bg-muted/30 rounded-lg">
@@ -124,7 +124,7 @@ export default function AboutPage() {
                     <div className="flex flex-col items-center space-y-6 text-center">
                         <h2 className="text-2xl font-bold tracking-tight">Join the Revolution</h2>
                         <p className="text-muted-foreground max-w-xl">
-                            Quantum Sentinel is an open initiative. We welcome contributions, feedback, and partnerships from the quantum research community.
+                            IBM Quantum Observer is an open initiative. We welcome contributions, feedback, and partnerships from the quantum research community.
                         </p>
                         <div className="flex gap-4 sticky">
                             <Button variant="outline" size="icon">
@@ -151,7 +151,7 @@ export default function AboutPage() {
             </main>
 
             <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-                <p className="text-xs text-gray-500 dark:text-gray-400">© 2024 Quantum Sentinel. All rights reserved.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">© 2024 IBM Quantum Observer. All rights reserved.</p>
             </footer>
         </div>
     );
