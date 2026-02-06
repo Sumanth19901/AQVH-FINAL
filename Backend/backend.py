@@ -14,7 +14,14 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
+# Load environment variables from .env file
 load_dotenv()
+
+# Fix for "Could not find a suitable TLS CA certificate bundle" error on Windows
+import certifi
+os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+
 
 # -------------------------
 # Logging
