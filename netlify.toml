@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = ""
   ## The publish directory is handled automatically by the plugin.
   ## Do not manually set it to .next
 
