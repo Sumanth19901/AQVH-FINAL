@@ -1,10 +1,10 @@
 [build]
-  command = "npm run build"  # Build command for Next.js
-  publish = "out"  # or ".next", depending on how you set up your Next.js project
+  command = "npm run build"  # Ensure this command is correct for Next.js
+  publish = ".next"  # Next.js outputs to .next by default
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"  # Ensure this plugin is included for Next.js
+  package = "@netlify/plugin-nextjs"  # Ensure the Next.js plugin is installed
 
 [context.production.environment]
-  NODE_VERSION = "16"  # You can set the specific Node version here
+  NODE_VERSION = "16"  # Optional, specify your Node version if needed
   NPM_FLAGS = "--legacy-peer-deps"  # Optional, depending on your dependencies
