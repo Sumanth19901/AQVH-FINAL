@@ -149,9 +149,29 @@ async def job_to_dict(job, lite: bool = False) -> dict:
         # -------------------------
         # 2. Backend / Environment
         # -------------------------
-        backend = job.backend()
-        backend_name = safe_call(backend, "name") if backend else "Unknown"
-        is_simulator = getattr(backend, "simulator", False) if backend else False
+        # OPTIMIZATION: Avoid calling job.backend() which triggers a network request
+        backend_name = "Unknown"
+        is_simulator = False
+
+        # Fast path: Check internal attributes first
+        if hasattr(job, "_backend_id"): 
+            backend_name = str(job._backend_id) if job._backend_id else "Unknown"
+        elif hasattr(job, "backend") and not callable(job.backend):
+            backend_name = str(job.backend) if job.backend else "Unknown"
+        
+        # Slow path: Only fetch full backend object if NOT in lite mode
+        if backend_name == "Unknown" and not lite:
+            try:
+                backend = job.backend()
+                backend_name = safe_call(backend, "name") or "Unknown"
+                is_simulator = getattr(backend, "simulator", False) if backend else False
+            except Exception:
+                pass # Keep as Unknown if fetch fails
+
+        # Fallback for simulator detection based on name
+        if "simulator" in str(backend_name).lower():
+            is_simulator = True
+            
         mode = "Simulator" if is_simulator else "Real Quantum Computer"
         
         # Region extraction (Best effort based on common CRN patterns)
