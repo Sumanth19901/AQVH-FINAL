@@ -1,5 +1,5 @@
-
 'use server';
+import 'server-only';
 /**
  * @fileOverview Analyzes job data to detect anomalies in queueing and execution behavior.
  *
