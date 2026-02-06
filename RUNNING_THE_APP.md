@@ -9,6 +9,7 @@ We have a unified script that sets up the environment, installs dependencies, an
 1.  Open PowerShell in the project root (`d:\AQVH\AQVH-FINAL\AQVH-FINAL`).
 2.  Run the script:
     ```powershell
+    cd Backend
     ./run_app.ps1
     ```
     *This will open the backend in a new window and run the frontend in the current window.*
@@ -24,12 +25,13 @@ If you prefer to run things manually or need to debug, follow these steps.
 1.  **Open a Terminal** (Command Prompt or PowerShell).
 2.  **Navigate to the project folder**:
     ```powershell
-    cd d:\AQVH\AQVH-FINAL\AQVH-FINAL
+    cd d:\AQVH\AQVH-FINAL\AQVH-FINAL\Backend
     ```
 3.  **Create a Virtual Environment** (only needed once):
     ```powershell
     python -m venv venv
     ```
+    *Note: If you already have a venv in the root, you may want to create a new one here or use the existing one, but `backend.py` is now in this folder.*
 4.  **Activate the Environment**:
     ```powershell
     .\venv\Scripts\Activate

@@ -42,7 +42,7 @@ This guide will help you obtain and configure your IBM Quantum credentials to en
 
 ### 4. Configure Your Application
 
-1. Open the `.env` file in the project root directory
+1. Open the `.env` file in the `Backend` directory
 2. Replace the placeholder values with your credentials:
 
 ```bash
@@ -60,7 +60,8 @@ The backend server needs to be restarted to load the new credentials:
 1. Stop the current backend server (Ctrl+C in the terminal running `uvicorn`)
 2. Restart it with:
    ```bash
-   ./venv/bin/uvicorn backend:app --reload
+   cd Backend
+   .\venv\Scripts\uvicorn backend:app --reload
    ```
 
 ### 6. Verify Connection
